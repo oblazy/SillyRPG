@@ -41,6 +41,7 @@ class Perso:
         self.alive=1
         self.gold=0
         self.nbdod=0
+        self.nbkill=0
         if race=="undead":
             self.alive =2
         Perso.update(self)
@@ -52,7 +53,7 @@ class Perso:
        
    
     def printlvl(self):
-        print ("[{}]: \n race: {} \t health {}/{} gold: {} \n STR {} \t \t INT {}  \t \t WIS {} \n DEX {}  \t \t LUC {} \t \t STA {}".format(
+        print ("[{}]: \n ({}) \t \t health {}/{} \t  \t gold: {} \n STR {} \t \t INT {}  \t \t WIS {} \n DEX {}  \t \t LUC {} \t \t STA {}".format(
                 self.name, self.race, self.hp, self.maxhp, self.gold, self.attr["STR"], self.attr["INT"], self.attr["WIS"], self.attr["DEX"], self.attr["LUC"], self.attr["STA"]))
     
     def xp2lvl(lvl):
@@ -126,7 +127,12 @@ class Perso:
         
 class Mon:
     
-    defmon= {"cryptographer":(3,4,1,3), "moth":(1,1,0,0), "bear":(6,7,0,0), "mage":(10,10,1,4), "demon":(13,12,2,3)} # Name, base xp, base dmg, phy|mag|chaos, loot
+    defmon= {"cryptographer":(3,0,1,3), "moth":(1,1,0,0), 
+             "butterfly":(2,2,0,1), "bee":(3,3,0,2),
+             "bear":(6,7,0,0), "mage":(10,10,1,4), 
+             "soldier":(10,10,0,5), "slime":(11,12,1,3),
+             "demon":(13,12,2,3), "vampire":(14,15,0,4),
+             "elemental":(15,15,1,4), "moon alien":(18,20,2,4)} # Name, base xp, base dmg, phy|mag|chaos, loot
     limon = list(defmon.keys())
                  
     def __init__(self,name,c):
@@ -185,6 +191,7 @@ def play(t=0.2):
             dam = int(dam * (1-per.reduce/100))
             Perso.damage(per,dam,name)
             if per.alive >0:
+                per.nbkill+=1
                 print("You fought a "+name+" and won "+str(xp)+" xp, took "+str(dam)+" damage and earned "+str(loot)+" golds!")
         else:
             print("You fought a "+name+" and won "+str(xp)+" xp, avoided damage and earned "+str(loot)+" golds!")
@@ -194,7 +201,8 @@ def play(t=0.2):
             print(per)
             time.sleep(t)
     if per.alive <1:
-        print("Your lvl {} {} {} died, with {} gold, after dodging {} times".format(per.lvl, per.race, per.name, per.gold, per.nbdod))
+        print("*"+"=-"*29+"=*")
+        print("Your lvl {} {} {} died, after dodging {} times and killing {} monsters".format(per.lvl, per.race, per.name, per.nbdod, per.nbkill))
         Perso.printlvl(per)
     else:
         print("You stopped your adventure, good bye.")
