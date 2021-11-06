@@ -83,27 +83,26 @@ class Perso:
         }
     
     def __init__(self,name,race="human",sex="x"):
-        self.name=name
-        self.race=race
-        self.prace=Perso.prace(race)
+        self.name   = name
+        self.race   = race
+        self.prace  = Perso.prace(race)
         self.attr={}
         for i in Perso.listattr:
-            self.attr[i]=Perso.defattr[race][i][0]
-        self.xp=0
-        self.lvl=1
-        self.sex=sex
-        self.alive=1
-        self.gold=0
-        self.nbdod=0
-        self.nbkill=0
-        self.items = []
-        tal=random.choice(Perso.listtal)
-        self.tallist=[]
+            self.attr[i] = Perso.defattr[race][i][0]
+        self.xp     = 0
+        self.lvl    = 1
+        self.sex    = sex
+        self.gold   = 0
+        self.nbdod  = 0
+        self.nbkill = 0
+        self.alive  = 1
+        self.items  = []
+        self.tallist= []
         if race=="undead":
-            self.alive +=1
-        Perso.newtal(self,tal)
-        Perso.update(self)
-        Perso.welcom(self,tal)
+            self.alive += 1
+        tal = random.choice(Perso.listtal)
+        self.newtal(tal)
+        self.welcom(tal)
     
     def prace(race):
         if race in PrettyUI.racecol:
@@ -130,6 +129,7 @@ class Perso:
             print(s)  
         
     def newtal(self,tal):
+        Perso.listtal.remove(tal)
         if tal=="Divine Spark":
             self.alive +=1
         if tal=="Smart Goblin":
@@ -140,6 +140,7 @@ class Perso:
             self.items.append("lpot")
             self.items.append("mpot")
         self.tallist.append(tal)
+        self.update()
    
     def __str__(self):
         return "{} ({}): \33[38;2;210;236;134mLife\33[0m: {} \t \33[38;2;137;177;210mMana\33[0m: {} \t XP: {}/{} \t \t \33[38;2;212;175;55mGold\33[0m: {}".format(
@@ -156,7 +157,9 @@ class Perso:
         return str(hp)
    
     def nblife(self):
-        s = "\33[38;2;212;175;55m"+"☥"*(self.alive-1)+"\33[0m"
+        s = "\33[38;2;212;175;55m"+"☥"*(self.alive-1)+"\33[0m\t"
+        s += "\33[38;2;210;236;134m❤\33[0m" *self.items.count("lpot")
+        s += "\33[38;2;137;177;210m✿\33[0m" * self.items.count("mpot")
         return s
    
     def printlvl(self):
@@ -164,6 +167,7 @@ class Perso:
                 self.name, self.prace, self.nblife(), self.maxhp, self.maxmp, self.gold, self.attr["STR"], self.attr["INT"], self.attr["WIS"], self.attr["DEX"], self.attr["LUC"], self.attr["STA"]))
 
         print("\tP.Dodge: {}% \t \t M.Dodge: {}% \n\tC.dodge: {}% \t \t D.Reduce: {}%".format(self.pdodge,self.mdodge,self.pdodge*self.mdodge//10/10,self.reduce))  
+
     def xp2lvl(lvl):
         '''
         Parameters
@@ -344,12 +348,48 @@ class Perso:
                         print("Ok, you know, there was no trap...")
                         b=1
                     else:
-                        print("That's not a valid answer, please remove the arrow from your ear")                    
+                        print("That's not a valid answer, please remove the arrow from your ear")          
+                        
+    def osiris(self):
+                print("You encounter a mystical god")
+                if self.gold < 2500:
+                    print("Sadly, you don't have enough \33[38;2;212;175;55mGold\33[0m, for their service")
+                else:
+                    b=0
+                    while b<1:
+                        a=input("Do you want to buy an \33[38;2;212;175;55mAnkh\33[0m from them for 2500 \33[38;2;212;175;55mGold\33[0m (y/n)? ")
+                        if a=="y":
+                            self.alive+=1
+                            self.gold -= 2500
+                            print("Don't worry, i'll see you later anyway!")
+                            b=1
+                        elif a=="n":
+                            print("I can't wait to see you again")
+                            b=1
+                        else:
+                            print("That's not a valid answer, please remove the arrow from your ear")          
      
     def oracle(self):
           print("You encounter a traveling {} oracle".format(Perso.prace(random.choice(list(Perso.defattr.keys())))))
-          print("They are unimpressed")
-
+          if  len(Perso.listtal) ==0:
+              print("You have nothing new to learn")
+          elif self.gold < 2000:
+                    print("Sadly, you don't have enough \33[38;2;212;175;55mGold\33[0m, for their service")
+          else:
+                    b=0
+                    while b<1:
+                        a=input("Do you want to buy a new random \33[38;2;239;151;208mTalent\33[0m from them for 2000 \33[38;2;212;175;55mGold\33[0m (y/n)? ")
+                        if a=="y":
+                            tal=random.choice(Perso.listtal)
+                            self.newtal(tal)
+                            self.gold -= 2000
+                            print("You learnt {}, congratulations".format(tal))
+                            b=1
+                        elif a=="n":
+                            print("Some people are less talented than others")
+                            b=1
+                        else:
+                            print("That's not a valid answer, please remove the arrow from your ear")    
    
     def graal(self):
           print("You found the \33[38;2;212;175;55mGraal\33[0m!!")
@@ -357,7 +397,7 @@ class Perso:
           while b<1:
               a=input("Do you want to try your luck to grab it (y/n)? ")
               if a=="y":
-                  res = random.randint(0,100)<(self.attr["LUC"]-self.lvl)
+                  res = random.randint(0,100+self.lvl)<(self.attr["LUC"]-self.lvl)
                   if res:
                       print("You caught it! Behold an \33[38;2;212;175;55mextra\33[0m life!")
                       self.alive += 1
@@ -381,8 +421,13 @@ class Mon:
              "butterfly":(2,2,0,1), "bee":(3,3,0,2),
              "bear":(6,7,0,0), "mage":(10,10,1,4), 
              "soldier":(10,10,0,5), "slime":(11,12,1,3),
+             "ghost brocolli": (12,10,1,4), "ghost pepper":(13,12,0,5),
              "demon":(13,12,2,3), "vampire":(14,15,0,4),
-             "elemental":(15,15,1,4), "moon alien":(18,20,2,4)} # Name, base xp, base dmg, phy|mag|chaos, loot
+             "elemental":(15,15,1,4), "moon alien":(18,20,2,4),
+             "space soldier":(20,25,0,10), "space wizard":(21,26,1,10),
+             "space demon":(21,27,2,12), "crazy cat":(25,28,2,10),
+             "void marksman":(26,30,0,12), "void sorcered":(30,34,1,15),
+             "void anointed":(32,35,2,16)} # Name, base xp, base dmg, phy|mag|chaos, loot
     limon = list(defmon.keys())
                  
     def __init__(self,name,c):
@@ -445,8 +490,8 @@ def play(t=0.2):
             if per.alive >0:
                 per.nbkill+=1
                 print("You fought a "+name+" and won "+str(xp)+" xp, took "+PrettyUI.givemeans(dam,"damage")+" and earned "+PrettyUI.givemeans(loot, "gold")+"!")
-                if per.nbkill % 17 == 0 and random.randint(0,50)<per.attr["LUC"]:
-                    enclist=[per.alchemist,per.herbalist,per.healer,per.mspring,per.oracle,per.graal]
+                if per.nbkill % 17 == 0:
+                    enclist=[per.alchemist,per.herbalist,per.healer,per.mspring,per.oracle,per.graal,per.osiris]
                     a=random.choice(enclist)
                     a()
                 
