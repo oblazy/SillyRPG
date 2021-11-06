@@ -14,7 +14,9 @@ class PrettyUI:
              "elf":(80,230,80),
              "orc":(200,120,120),
              "undead":(200,10,200),
-             "ent":(170,120,120)}
+             "ent":(170,120,120),
+             "goblin":(212,175,55)
+             }
     
     OKGreen = (10,255,10)
     Critical= (220,157,51)
@@ -39,14 +41,15 @@ class PrettyUI:
     
 class Perso:
     defattr={
-        "human":{"CON":(10,(1,2)), "STR":(10,(1,2)),"INT":(10,(1,2)),"WIS":(10,(1,2)),"DEX":(10,(1,2)),"LUC":(10,(1,2)),"STA":(10,(1,2))},
-        "undead":{"CON":(8,(0,2)), "STR":(11,(2,3)),"INT":(9,(1,1)),"WIS":(12,(0,1)),"DEX":(8,(1,1)),"LUC":(10,(1,2)),"STA":(14,(1,3))},
-        "elf":{"CON":(9,(0,1)), "STR":(8,(1,1)),"INT":(8,(2,3)),"WIS":(13,(3,4)),"DEX":(25,(3,6)),"LUC":(10,(3,4)),"STA":(11,(1,2))},
-        "orc":{"CON":(15,(2,3)), "STR":(10,(3,4)),"INT":(10,(0,1)),"WIS":(10,(0,1)),"DEX":(10,(0,1)),"LUC":(10,(0,1)),"STA":(15,(2,3))},
-        "ent":{"CON":(15,(3,3)), "STR":(10,(2,2)),"INT":(10,(1,2)),"WIS":(10,(0,1)),"DEX":(10,(0,1)),"LUC":(8,(0,1)),"STA":(12,(1,3))}
+        "human":{"CON":(10,(1,2)), "STR":(10,(1,2)),"INT":(10,(1,2)),"WIS":(10,(1,2)),"DEX":(10,(1,2)),"LUC":(10,(1,2)),"STA":(10,(1,2)),"SPD":(10,(1,1))},
+        "undead":{"CON":(8,(0,2)), "STR":(11,(2,3)),"INT":(9,(1,1)),"WIS":(12,(0,1)),"DEX":(8,(1,1)),"LUC":(10,(1,2)),"STA":(14,(1,3)),"SPD":(8,(0,1))},
+        "elf":{"CON":(9,(0,1)), "STR":(8,(1,1)),"INT":(8,(2,3)),"WIS":(13,(3,4)),"DEX":(25,(3,6)),"LUC":(10,(3,4)),"STA":(11,(1,2)),"SPD":(12,(2,2))},
+        "orc":{"CON":(15,(2,3)), "STR":(10,(3,4)),"INT":(10,(0,1)),"WIS":(10,(0,1)),"DEX":(10,(0,1)),"LUC":(10,(0,1)),"STA":(15,(2,3)),"SPD":(10,(1,2))},
+        "ent":{"CON":(15,(3,3)), "STR":(10,(2,2)),"INT":(10,(1,2)),"WIS":(10,(0,1)),"DEX":(10,(0,1)),"LUC":(8,(0,1)),"STA":(12,(1,3)),"SPD":(10,(0,1))},
+        "goblin":{"CON":(15,(3,3)), "STR":(10,(2,2)),"INT":(10,(1,2)),"WIS":(10,(0,1)),"DEX":(10,(0,1)),"LUC":(8,(0,1)),"STA":(12,(1,3)),"SPD":(10,(0,1))}
         }
     
-    listattr=["CON","STR","INT","WIS","DEX","LUC","STA"]
+    listattr=["CON","STR","INT","WIS","DEX","LUC","STA","SPD"]
     
     deftal={
         "Jack of all trades":("When leveling up, each base stat is increased by one more",1),
@@ -74,13 +77,25 @@ class Perso:
     Dex : Phys Dodge
     Luc : Used in encounters
     STA : Generic Damage Reduce
+    SPD : Attack speed
     ??? : Magic Damage
     '''
     
     prettyname={
         "lpot":"\33[38;2;210;236;134mLife\33[0m potion",
-        "mpot":"\33[38;2;137;177;210mMana\33[0m potion"
+        "mpot":"\33[38;2;137;177;210mMana\33[0m potion",
+        "spdb":"🥾 Speed Boots",
+        "dglo":"🧤 Dexterity Gloves",
+        "what":"🎩 Wizard Hat ",
+        "lche":"🦺 Life Chest",
+        "samu":"📿 Sage Amulet",
+        "4lc":"🍀 Four leaf Clover",
+        "sshi":"🔰 Small shield"
         }
+    
+    liststuff=list(prettyname.keys())
+    liststuff.remove("lpot")
+    liststuff.remove("mpot")
     
     def __init__(self,name,race,sex="x"):
         self.name   = name
@@ -95,6 +110,7 @@ class Perso:
         self.gold   = 0
         self.nbdod  = 0
         self.nbkill = 0
+        self.nbinit = 0
         self.alive  = 1
         self.items  = []
         self.tallist= []
@@ -136,7 +152,7 @@ class Perso:
             s+=',\n\t -  '.join(lit)+"."
             print(s)  
         
-    def newtal(self,tal):
+    def newtal(self,tal,fill=True):
         Perso.listtal.remove(tal)
         if tal == "Divine Spark":
             self.alive +=1
@@ -168,16 +184,36 @@ class Perso:
             for k in list(self.attr.keys()):
                 self.attr[k][1]+=1
         self.tallist.append(tal)
-        self.update()
+        self.update(fill)
    
-    def update(self):  # Updates the dodge, red and so on for each level  
+    def newitem(self,item,fill=True):
+        Perso.liststuff.remove(item)
+        if item == "spdb":
+            self.attr["SPD"][0]+=3
+        elif item == "dglo":
+            self.attr["DEX"][0]+=3    
+        elif item == "what":
+            self.attr["INT"][0]+=3    
+        elif item == "lche":
+            self.attr["CON"][0]+=3    
+        elif item == "samu":
+            self.attr["WIS"][0]+=3    
+        elif item == "4lc":
+            self.attr["LUC"][0]+=3
+        elif item == "sshi":
+           self.attr["STA"][0]+=3
+        self.items.append(item)
+        self.update(False) 
+   
+    def update(self,fill=True):  # Updates the dodge, red and so on for each level  
        self.pdodge  = min(int((self.attr["DEX"][0])/self.lvl**0.5)+self.bpd,75)
        self.mdodge  = min(int((self.attr["WIS"][0])/self.lvl**0.5)+self.bmd,75)
        self.reduce  = min(int((self.attr["STA"][0] - self.lvl)/self.lvl**0.4)+self.brdc,75)
        self.maxhp   = (15+self.bghp) * self.attr["CON"][0] +self.bhp
-       self.hp      = self.maxhp
        self.maxmp   = (15+self.bgmp) * self.attr["INT"][0] +self.bmp
-       self.mp      = self.maxmp 
+       if fill:
+           self.hp      = self.maxhp
+           self.mp      = self.maxmp 
    
     def __str__(self):
         return "{} ({}): \33[38;2;210;236;134mLife\33[0m: {} \t \33[38;2;137;177;210mMana\33[0m: {} \t XP: {}/{} \t \t \33[38;2;212;175;55mGold\33[0m: {}".format(
@@ -200,8 +236,8 @@ class Perso:
         return s
    
     def printlvl(self):
-        print ("[{} ({})] {} \t \t \t \t {} ⚔  \t {} 🤸\n \33[38;2;210;236;134mMaxHP\33[0m: {} \t  \t \33[38;2;137;177;210mMaxMP\33[0m: {} \t \t \33[38;2;212;175;55mGold\33[0m: {} \n STR {} \t \t \t INT {}  \t \t \t WIS {} \n DEX {}  \t \t \t LUC {} \t \t \t STA {}".format(
-                self.name, self.prace, self.nblife(), self.nbkill, self.nbdod, self.maxhp, self.maxmp, self.gold, self.attr["STR"][0], self.attr["INT"][0], self.attr["WIS"][0], self.attr["DEX"][0], self.attr["LUC"][0], self.attr["STA"][0]))
+        print ("[{} ({})] {} \t \t \t \t {} ⚔  \t {} 🤸 \t 💨 {} \n \33[38;2;210;236;134mMaxHP\33[0m: {} \t  \t \33[38;2;137;177;210mMaxMP\33[0m: {} \t \t \33[38;2;212;175;55mGold\33[0m: {} \n STR {} \t \t \t INT {}  \t \t \t WIS {} \n DEX {}  \t \t \t LUC {} \t \t \t STA {}".format(
+                self.name, self.prace, self.nblife(), self.nbkill, self.nbdod, self.nbinit, self.maxhp, self.maxmp, self.gold, self.attr["STR"][0], self.attr["INT"][0], self.attr["WIS"][0], self.attr["DEX"][0], self.attr["LUC"][0], self.attr["STA"][0]))
 
         print("\tP.Dodge: {}% \t \t M.Dodge: {}% \n\tC.dodge: {}% \t \t D.Reduce: {}%".format(self.pdodge,self.mdodge,self.pdodge*self.mdodge//10/10,self.reduce))  
 
@@ -239,10 +275,10 @@ class Perso:
     def damage(self,dam,name):
         self.hp -= dam
         if self.hp<=0:
-            print ("Oh no, your character took lethal damage from a "+name+" :(")
+            print ("Oh no, your character took lethal damage from a mean "+name+" :(")
             self.alive-=1
             if self.alive>0:
-                self.hp = self.attr["CON"]*5 + self.lvl
+                self.hp = self.maxhp//2 + self.lvl
             
     def dodge(self,t):
         hit = random.randint(0,100)
@@ -267,21 +303,28 @@ class Perso:
                 print('Unknown race!')
             else:
                 return ra           
-      
+   
+    def reduc(self,price):
+        race=random.choice(list(Perso.defattr.keys()))
+        if self.race == race or self.race=="goblin":
+            return int(0.9 * price),race
+        return price,race
                 
         
     def herbalist(self):
-          print("You encounter a traveling {} herbalist".format(Perso.prace(random.choice(list(Perso.defattr.keys())))))
+          price = 200
+          price,race = self.reduc(price)
+          print("You encounter a traveling {} herbalist".format(Perso.prace(race)))
           if "lpot" in self.items:
-              print("Sadly, you already carry a \33[38;2;210;236;134mLife\33[0m potion, they cannot sell you a new one")
-          elif self.gold < 200:
+              print("Sadly, you already carry a \33[38;2;210;236;134mLife\33[0m potion \33[38;2;210;236;134m❤\33[0m, they cannot sell you a new one")
+          elif self.gold < price:
               print("Sadly, you don't have enough \33[38;2;212;175;55mGold\33[0m, they cannot sell you a \33[38;2;210;236;134mLife\33[0m Potion")
           else:
               b=0
               while b<1:
-                  a=input("Do you want to buy a \33[38;2;210;236;134mLife\33[0m potion for 200 \33[38;2;212;175;55mGold\33[0m (y/n)? ")
+                  a=input("Do you want to buy a \33[38;2;210;236;134mLife\33[0m potion \33[38;2;210;236;134m❤\33[0m for "+str(price)+" \33[38;2;212;175;55mGold\33[0m (y/n)? ")
                   if a=="y":
-                      self.gold-=200
+                      self.gold-=price
                       self.items.append("lpot")
                       print("Thank you! Be safe!")
                       b=1
@@ -292,17 +335,19 @@ class Perso:
                       print("That's not a valid answer, please remove the arrow from your ear")
                       
     def alchemist(self):
-           print("You encounter a traveling {} alchemist".format(Perso.prace(random.choice(list(Perso.defattr.keys())))))
+           price = 150
+           price,race = self.reduc(price)
+           print("You encounter a traveling {} alchemist".format(Perso.prace(race)))
            if "mpot" in self.items:
-               print("Sadly, you already carry a \33[38;2;137;177;210mMana\33[0m potion, they cannot sell you a new one")
-           elif self.gold < 150:
+               print("Sadly, you already carry a \33[38;2;137;177;210mMana\33[0m potion \33[38;2;137;177;210m✿\33[0m, they cannot sell you a new one")
+           elif self.gold < price:
                print("Sadly, you don't have enough \33[38;2;212;175;55mGold\33[0m, they cannot sell you a \33[38;2;137;177;210mMana\33[0m Potion")
            else:
                b=0
                while b<1:
-                   a=input("Do you want to buy a \33[38;2;137;177;210mMana\33[0m potion for 150 \33[38;2;212;175;55mGold\33[0m (y/n)? ")
+                   a=input("Do you want to buy a \33[38;2;137;177;210mMana\33[0m potion \33[38;2;137;177;210m✿\33[0m for "+str(price)+" \33[38;2;212;175;55mGold\33[0m (y/n)? ")
                    if a=="y":
-                       self.gold-=150
+                       self.gold-=price
                        self.items.append("mpot")
                        print("Thank you! Be safe!")
                        b=1
@@ -313,17 +358,19 @@ class Perso:
                        print("That's not a valid answer, please remove the arrow from your ear")
                        
     def healer(self):
-           print("You encounter a traveling {} healer".format(Perso.prace(random.choice(list(Perso.defattr.keys())))))
+           price = 150
+           price,race = self.reduc(price)
+           print("You encounter a traveling {} healer".format(Perso.prace(race)))
            if self.hp >= self.maxhp:
                print("You are already at full \33[38;2;210;236;134mLife\33[0m, you don't need their help")
-           elif self.gold < 150:
+           elif self.gold < price:
                print("Sadly, you don't have enough \33[38;2;212;175;55mGold\33[0m, for their service")
            else:
                b=0
                while b<1:
-                   a=input("Do you want to be healed back to full \33[38;2;210;236;134mLife\33[0m for 150 \33[38;2;212;175;55mGold\33[0m (y/n)? ")
+                   a=input("Do you want to be healed back to full \33[38;2;210;236;134mLife\33[0m for "+str(price)+" \33[38;2;212;175;55mGold\33[0m (y/n)? ")
                    if a=="y":
-                       self.gold-=150
+                       self.gold-=price
                        self.hp=self.maxhp
                        print("Thank you! Be safe!")
                        b=1
@@ -358,11 +405,11 @@ class Perso:
                 else:
                     b=0
                     while b<1:
-                        a=input("Do you want to buy an \33[38;2;212;175;55mAnkh\33[0m from them for 2500 \33[38;2;212;175;55mGold\33[0m (y/n)? ")
+                        a=input("Do you want to buy an \33[38;2;212;175;55mAnkh ☥\33[0m from them for 2500 \33[38;2;212;175;55mGold\33[0m (y/n)? ")
                         if a=="y":
                             self.alive+=1
                             self.gold -= 2500
-                            print("Don't worry, i'll see you later anyway!")
+                            print("Here it is. Don't worry, i'll see you later anyway!")
                             b=1
                         elif a=="n":
                             print("I can't wait to see you again")
@@ -371,26 +418,52 @@ class Perso:
                             print("That's not a valid answer, please remove the arrow from your ear")          
      
     def oracle(self):
-          print("You encounter a traveling {} oracle".format(Perso.prace(random.choice(list(Perso.defattr.keys())))))
+          price = 2200
+          price,race = self.reduc(price)
+          print("You encounter a traveling {} oracle".format(Perso.prace(race)))
           if  len(Perso.listtal) ==0:
               print("You have nothing new to learn")
-          elif self.gold < 2500:
+          elif self.gold < price:
                     print("Sadly, you don't have enough \33[38;2;212;175;55mGold\33[0m, for their service")
           else:
                     b=0
                     while b<1:
-                        a=input("Do you want to buy a new random \33[38;2;239;151;208mTalent\33[0m from them for 2000 \33[38;2;212;175;55mGold\33[0m (y/n)? ")
+                        a=input("Do you want to buy a new random \33[38;2;239;151;208mTalent\33[0m from them for "+str(price)+" \33[38;2;212;175;55mGold\33[0m (y/n)? ")
                         if a=="y":
                             tal=random.choice(Perso.listtal)
-                            self.newtal(tal)
-                            self.gold -= 2500
+                            self.newtal(tal,False)
+                            self.gold -= price
                             print("You learnt {}, congratulations".format(tal))
                             b=1
                         elif a=="n":
                             print("Some people are less talented than others")
                             b=1
                         else:
-                            print("That's not a valid answer, please remove the arrow from your ear")    
+                            print("That's not a valid answer, please remove the arrow from your ear")   
+                            
+    def blacksmith(self):
+          price = 1600
+          price,race = self.reduc(price)
+          print("You encounter a traveling {} blascksmith".format(Perso.prace(race)))
+          if  len(Perso.liststuff) ==0:
+              print("You have nothing new to buy")
+          elif self.gold < price:
+                    print("Sadly, you don't have enough \33[38;2;212;175;55mGold\33[0m, for their service")
+          else:
+                    b=0
+                    while b<1:
+                        a=input("Do you want to buy a new random \33[38;2;239;151;208mItem\33[0m from them for "+str(price)+" \33[38;2;212;175;55mGold\33[0m (y/n)? ")
+                        if a=="y":
+                            ite=random.choice(Perso.liststuff)
+                            self.newitem(ite,False)
+                            self.gold -= price
+                            print("You bought {}, congratulations".format(Perso.prettyname[ite]))
+                            b=1
+                        elif a=="n":
+                            print("Some people think it's better to travel light")
+                            b=1
+                        else:
+                            print("That's not a valid answer, please remove the arrow from your ear")   
    
     def graal(self):
           print("You found the \33[38;2;212;175;55mGraal\33[0m!!")
@@ -492,44 +565,50 @@ def play(t=0.2):
     time.sleep(10*t)
 #    b='y'
     while (per.alive >0):
-        name, xp, dam, loot, hit = per.fight()
+        name, xp, dam, loot, dod = per.fight()
         per.newxp(xp)
-        if not(hit):
-            dam = int(dam * (1-per.reduce/100))
-            Perso.damage(per,dam,name)
-            if per.alive >0:
-                per.nbkill+=1
-                print("You fought a "+name+" and won "+str(xp)+" xp, took "+PrettyUI.givemeans(dam,"damage")+" and earned "+PrettyUI.givemeans(loot, "gold")+"!")
-                if per.nbkill % 17 == 0:
-                    enclist=[per.alchemist,per.herbalist,per.healer,per.mspring,per.oracle,per.graal,per.osiris]
+        if not(dod):
+            initiative = random.randint(per.lvl,100)
+            if initiative > per.attr["SPD"][0]:
+                dam = int(dam * (1-per.reduce/100))
+                Perso.damage(per,dam,name)
+                if per.alive >0:
+                    per.nbkill+=1
+                    print("You fought a "+name+" and won "+str(xp)+" xp, took "+PrettyUI.givemeans(dam,"damage")+" and earned "+PrettyUI.givemeans(loot, "gold")+"!")
+            else:
+                 print("You fought a "+name+" and won "+str(xp)+" xp, and managed to hit first, you earned "+PrettyUI.givemeans(loot, "gold")+"!")
+                 per.nbinit += 1
+        else:
+            print("You fought a "+name+" and won "+str(xp)+" xp, avoided damage and earned "+str(loot)+" golds!")
+            per.nbkill+=1
+            per.nbdod += 1
+        if per.alive >0:
+            per.gold+= loot
+            if per.nbkill % 17 == 0:
+                    enclist=[per.alchemist,per.herbalist,per.healer,per.mspring,per.oracle,per.graal,per.osiris,per.blacksmith]
                     a=random.choice(enclist)
                     a()
                 
-                if "lpot" in per.items and per.hp < 0.2 * per.maxhp:
+            if "lpot" in per.items and per.hp < 0.2 * per.maxhp:
                     print("Auto-using a \33[38;2;210;236;134mLife\33[0m potion")
                     per.hp += int(0.4*per.maxhp)
                     per.items.remove("lpot")
                     time.sleep(3*t)
                     
-                if "mpot" in per.items and per.mp < 0.2 * per.maxmp:
+            if "mpot" in per.items and per.mp < 0.2 * per.maxmp:
                     print("Auto-using a \33[38;2;137;177;210mMana\33[0m potion")
                     per.mp += int(0.4*per.maxmp)
                     per.items.remove("mpot")
                     time.sleep(3*t)
-                    
-        else:
-            print("You fought a "+name+" and won "+str(xp)+" xp, avoided damage and earned "+str(loot)+" golds!")
-            per.nbdod += 1
-        if per.alive >0:
-            per.gold+= loot
             print(per)
             time.sleep(t)
     if per.alive <1:
-        print("*"+"=-"*37+"=*")
+        print("/"+"=-"*37+"=\\")
         print("Your lvl {} {} {} died :(".format(per.lvl, per.prace, per.name))
         per.printlvl()
         Perso.printtal(per.tallist)
         Perso.printite(per.items)
+        print("\\"+"=-"*37+"=/")
     else:
         print("You stopped your adventure, good bye.")
         
