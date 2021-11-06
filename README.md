@@ -1,6 +1,6 @@
 # SillyRPG
 A Silly Terminal RPG
-
+<pre>
   ____                  _       _      __   __       ____      ____      ____   
  / __"| u      ___     |"|     |"|     \ \ / /    U |  _"\ u U|  _"\ uU /"___|u 
 <\___ \/      |_"_|  U | | u U | | u    \ V /      \| |_) |/ \| |_) |/\| |  _ / 
@@ -8,6 +8,7 @@ A Silly Terminal RPG
  |____/>>    U/| |\u   |_____| |_____|   |_|        |_| \_\   |_|       \____|  
   )(  (__).-,_|___|_,-.//  \\  //  \\.-,//|(_       //   \\_  ||>>_     _)(|_   
  (__)      \_)-' '-(_/(_")("_)(_")("_)\_) (__)     (__)  (__)(__)__)   (__)__) 
+ </pre>
 
 ## A little story
 You're an adventurer in a wonderland, and are chasing monsters to find gold and treasures...
