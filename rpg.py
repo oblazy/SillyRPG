@@ -200,8 +200,8 @@ class Perso:
         return s
    
     def printlvl(self):
-        print ("[{} ({})] {} \n \33[38;2;210;236;134mMaxHP\33[0m: {} \t  \t \33[38;2;137;177;210mMaxMP\33[0m: {} \t \t \33[38;2;212;175;55mGold\33[0m: {} \n STR {} \t \t \t INT {}  \t \t \t WIS {} \n DEX {}  \t \t \t LUC {} \t \t \t STA {}".format(
-                self.name, self.prace, self.nblife(), self.maxhp, self.maxmp, self.gold, self.attr["STR"][0], self.attr["INT"][0], self.attr["WIS"][0], self.attr["DEX"][0], self.attr["LUC"][0], self.attr["STA"][0]))
+        print ("[{} ({})] {} \t \t \t \t {} ⚔  \t {} 🤸\n \33[38;2;210;236;134mMaxHP\33[0m: {} \t  \t \33[38;2;137;177;210mMaxMP\33[0m: {} \t \t \33[38;2;212;175;55mGold\33[0m: {} \n STR {} \t \t \t INT {}  \t \t \t WIS {} \n DEX {}  \t \t \t LUC {} \t \t \t STA {}".format(
+                self.name, self.prace, self.nblife(), self.nbkill, self.nbdod, self.maxhp, self.maxmp, self.gold, self.attr["STR"][0], self.attr["INT"][0], self.attr["WIS"][0], self.attr["DEX"][0], self.attr["LUC"][0], self.attr["STA"][0]))
 
         print("\tP.Dodge: {}% \t \t M.Dodge: {}% \n\tC.dodge: {}% \t \t D.Reduce: {}%".format(self.pdodge,self.mdodge,self.pdodge*self.mdodge//10/10,self.reduce))  
 
@@ -374,7 +374,7 @@ class Perso:
           print("You encounter a traveling {} oracle".format(Perso.prace(random.choice(list(Perso.defattr.keys())))))
           if  len(Perso.listtal) ==0:
               print("You have nothing new to learn")
-          elif self.gold < 2000:
+          elif self.gold < 2500:
                     print("Sadly, you don't have enough \33[38;2;212;175;55mGold\33[0m, for their service")
           else:
                     b=0
@@ -383,7 +383,7 @@ class Perso:
                         if a=="y":
                             tal=random.choice(Perso.listtal)
                             self.newtal(tal)
-                            self.gold -= 2000
+                            self.gold -= 2500
                             print("You learnt {}, congratulations".format(tal))
                             b=1
                         elif a=="n":
@@ -405,7 +405,7 @@ class Perso:
                       self.hp = self.maxhp
                   else:
                       print("Oh no, you failed and took some damage")
-                      self.hp -= random.randint(3, 8)
+                      self.hp -= random.randint(10,30) * self.maxhp
                       if self.hp <1:
                           self.hp = 1
                           print("Luckily, the \33[38;2;212;175;55mGraal\33[0m prevented this damage from being lethal")
@@ -418,17 +418,26 @@ class Perso:
            
 class Mon:
     
-    defmon= {"cryptographer":(3,0,1,3), "moth":(1,1,0,0), 
-             "butterfly":(2,2,0,1), "bee":(3,3,0,2),
-             "bear":(6,7,0,0), "mage":(10,10,1,4), 
-             "soldier":(10,10,0,5), "slime":(11,12,1,3),
-             "ghost brocolli": (12,10,1,4), "ghost pepper":(13,12,0,5),
-             "demon":(13,12,2,3), "vampire":(14,15,0,4),
-             "elemental":(15,15,1,4), "moon alien":(18,20,2,4),
-             "space soldier":(20,25,0,10), "space wizard":(21,26,1,10),
-             "space demon":(21,27,2,12), "crazy cat":(25,28,2,10),
-             "void marksman":(26,30,0,12), "void sorcered":(30,34,1,15),
-             "void anointed":(32,35,2,16)} # Name, base xp, base dmg, phy|mag|chaos, loot
+    defmon= {"cryptographer" :(3,0,1,3),   "moth"           :(1,1,0,0), 
+             "butterfly"     :(2,2,0,1),   "bee"            :(3,3,0,2),
+             "bear"          :(6,7,0,0),   "mage"           :(10,10,1,4), 
+             "soldier"       :(10,10,0,5), "wizard"         :(11,12,1,3),
+             "ghost broccoli":(12,10,1,4), "ghost pepper"   :(13,12,0,5),
+             "slime"         :(14,14,2,6), "icthyocentaur"  :(15,14,0,7),
+             "demon"         :(13,12,2,3), "vampire"        :(14,15,1,4),
+             "werewolf"      :(15,15,0,7), "elemental"      :(15,15,1,4),
+             "moon alien"    :(18,20,2,8), "roussalka"      :(19,20,1,9),
+             "space soldier" :(20,25,0,10),"space wizard"   :(21,26,1,10),
+             "space demon"   :(21,27,2,12),"crazy cat"      :(25,28,2,10),
+             "inugami"       :(26,27,0,13),"naga sorceress" :(27,28,1,15),
+             "naga footman"  :(27,27,0,15),"naga overlord"  :(28,28,2,16),
+             "void marksman" :(26,30,0,12),"void sorcered"  :(30,34,1,15),
+             "void anointed" :(32,35,2,16),"addanc"         :(33,36,0,17),
+             "kraken"        :(34,38,0,15),"incubbus"       :(36,37,2,16),
+             "cerberus"      :(37,39,0,17),"hydra"          :(37,37,1,18),
+             "nian"          :(40,42,2,20),"efrit"          :(40,41,1,16),
+             "Rakshasas"     :(41,42,0,18)             
+             } # Name, base xp, base dmg, phy|mag|chaos, loot
     limon = list(defmon.keys())
                  
     def __init__(self,name,c):
@@ -517,7 +526,7 @@ def play(t=0.2):
             time.sleep(t)
     if per.alive <1:
         print("*"+"=-"*37+"=*")
-        print("Your lvl {} {} {} died, after dodging {} times and killing {} monsters".format(per.lvl, per.prace, per.name, per.nbdod, per.nbkill))
+        print("Your lvl {} {} {} died :(".format(per.lvl, per.prace, per.name))
         per.printlvl()
         Perso.printtal(per.tallist)
         Perso.printite(per.items)
