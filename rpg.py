@@ -82,13 +82,13 @@ class Perso:
         "mpot":"\33[38;2;137;177;210mMana\33[0m potion"
         }
     
-    def __init__(self,name,race="human",sex="x"):
+    def __init__(self,name,race,sex="x"):
         self.name   = name
         self.race   = race
         self.prace  = Perso.prace(race)
         self.attr={}
         for i in Perso.listattr:
-            self.attr[i] = Perso.defattr[race][i][0]
+            self.attr[i] = [Perso.defattr[race][i][0],0]
         self.xp     = 0
         self.lvl    = 1
         self.sex    = sex
@@ -98,6 +98,14 @@ class Perso:
         self.alive  = 1
         self.items  = []
         self.tallist= []
+        self.bpd    = 0
+        self.bmd    = 0
+        self.brdc   = 0
+        self.bhp    = 0
+        self.bghp   = 0
+        self.bmp    = 0
+        self.bgmp   = 0
+        
         if race=="undead":
             self.alive += 1
         tal = random.choice(Perso.listtal)
@@ -130,17 +138,46 @@ class Perso:
         
     def newtal(self,tal):
         Perso.listtal.remove(tal)
-        if tal=="Divine Spark":
+        if tal == "Divine Spark":
             self.alive +=1
-        if tal=="Smart Goblin":
+        elif tal == "Smart Goblin":
             self.gold +=100
-        if tal=="Lucky":
-            self.attr["LUC"]+=10
-        if tal=="Prepared":
+        elif tal == "Lucky":
+            self.attr["LUC"][0]+=10
+        elif tal == "Prepared":
             self.items.append("lpot")
             self.items.append("mpot")
+        elif tal == "MC Dodger":
+            self.bpd += 5
+        elif tal == "Resilient":
+            self.brdc += 2
+        elif tal == "Intangible":
+            self.bpd += 2
+            self.bmd += 2
+        elif tal == "Giant":
+            self.bghp += 5
+        elif tal == "Bulky" :
+            self.bhp += 100
+        elif tal == "Scholar":
+            self.bgmp += 5
+        elif tal == "Clever":
+            self.bmp += 100
+        elif tal == "Etherborn":
+            self.bmd += 5
+        elif tal == "Jack of all trades":
+            for k in list(self.attr.keys()):
+                self.attr[k][1]+=1
         self.tallist.append(tal)
         self.update()
+   
+    def update(self):  # Updates the dodge, red and so on for each level  
+       self.pdodge  = min(int((self.attr["DEX"][0])/self.lvl**0.5)+self.bpd,75)
+       self.mdodge  = min(int((self.attr["WIS"][0])/self.lvl**0.5)+self.bmd,75)
+       self.reduce  = min(int((self.attr["STA"][0] - self.lvl)/self.lvl**0.4)+self.brdc,75)
+       self.maxhp   = (15+self.bghp) * self.attr["CON"][0] +self.bhp
+       self.hp      = self.maxhp
+       self.maxmp   = (15+self.bgmp) * self.attr["INT"][0] +self.bmp
+       self.mp      = self.maxmp 
    
     def __str__(self):
         return "{} ({}): \33[38;2;210;236;134mLife\33[0m: {} \t \33[38;2;137;177;210mMana\33[0m: {} \t XP: {}/{} \t \t \33[38;2;212;175;55mGold\33[0m: {}".format(
@@ -157,14 +194,14 @@ class Perso:
         return str(hp)
    
     def nblife(self):
-        s = "\33[38;2;212;175;55m"+"☥"*(self.alive-1)+"\33[0m\t"
+        s = "\33[38;2;212;175;55m"+"☥" * (self.alive-1)+"\33[0m\t"
         s += "\33[38;2;210;236;134m❤\33[0m" *self.items.count("lpot")
         s += "\33[38;2;137;177;210m✿\33[0m" * self.items.count("mpot")
         return s
    
     def printlvl(self):
         print ("[{} ({})] {} \n \33[38;2;210;236;134mMaxHP\33[0m: {} \t  \t \33[38;2;137;177;210mMaxMP\33[0m: {} \t \t \33[38;2;212;175;55mGold\33[0m: {} \n STR {} \t \t \t INT {}  \t \t \t WIS {} \n DEX {}  \t \t \t LUC {} \t \t \t STA {}".format(
-                self.name, self.prace, self.nblife(), self.maxhp, self.maxmp, self.gold, self.attr["STR"], self.attr["INT"], self.attr["WIS"], self.attr["DEX"], self.attr["LUC"], self.attr["STA"]))
+                self.name, self.prace, self.nblife(), self.maxhp, self.maxmp, self.gold, self.attr["STR"][0], self.attr["INT"][0], self.attr["WIS"][0], self.attr["DEX"][0], self.attr["LUC"][0], self.attr["STA"][0]))
 
         print("\tP.Dodge: {}% \t \t M.Dodge: {}% \n\tC.dodge: {}% \t \t D.Reduce: {}%".format(self.pdodge,self.mdodge,self.pdodge*self.mdodge//10/10,self.reduce))  
 
@@ -183,13 +220,10 @@ class Perso:
         return 3 * (lvl**2 - 5 * lvl +8)
         
     def lvlup(self):
-        self.xp -= Perso.xp2lvl(self.lvl)
+        self.xp  -= Perso.xp2lvl(self.lvl)
         self.lvl += 1
-        b=0
-        if "Jack of all trades" in self.tallist:
-            b=1
         for i in Perso.listattr:
-            self.attr[i]+=b+random.randint(Perso.defattr[self.race][i][1][0],Perso.defattr[self.race][i][1][1])
+            self.attr[i][0]+=self.attr[i][1]+random.randint(Perso.defattr[self.race][i][1][0],Perso.defattr[self.race][i][1][1])
         Perso.update(self)
         self.hp=self.maxhp
         print("*"*30 +" Congratulations *"+"*"*30)
@@ -201,39 +235,6 @@ class Perso:
         self.xp+=xp
         if self.xp >= Perso.xp2lvl(self.lvl):
             Perso.lvlup(self)
-    
-    def update(self):  # Updates the dodge, red and so on for each level
-        p=0
-        m=0
-        r=0
-        hp=0
-        ghp=0
-        mp=0
-        gmp=0
-        if "MC Dodger" in self.tallist:
-            p+=5
-        if "Resilient" in self.tallist:
-            r+=2
-        if "Intangible" in self.tallist:
-            p+=2
-            m+=2
-        if "Giant" in self.tallist:
-            ghp+=5
-        if "Bulky" in self.tallist:
-            hp+=100
-        if "Scholar" in self.tallist:
-            gmp+=5
-        if "Clever" in self.tallist:
-            mp+=100
-        if "Etherborn" in self.tallist:
-            m+=5
-        self.pdodge = min(int((self.attr["DEX"])/self.lvl**0.5)+p,75)
-        self.mdodge = min(int((self.attr["WIS"])/self.lvl**0.5)+m,75)
-        self.reduce = min(int((self.attr["STA"] - self.lvl)/self.lvl**0.4)+r,75)
-        self.maxhp = (15+ghp) * self.attr["CON"] +hp
-        self.hp=self.maxhp
-        self.maxmp = (15+gmp) * self.attr["INT"] +mp
-        self.mp=self.maxmp
     
     def damage(self,dam,name):
         self.hp -= dam
@@ -397,7 +398,7 @@ class Perso:
           while b<1:
               a=input("Do you want to try your luck to grab it (y/n)? ")
               if a=="y":
-                  res = random.randint(0,100+self.lvl)<(self.attr["LUC"]-self.lvl)
+                  res = random.randint(0,100+self.lvl)<(self.attr["LUC"][0]-self.lvl)
                   if res:
                       print("You caught it! Behold an \33[38;2;212;175;55mextra\33[0m life!")
                       self.alive += 1
