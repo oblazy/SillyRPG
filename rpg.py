@@ -147,6 +147,9 @@ class Perso:
         self.bgmp   = 0
         self.bfa    = 0
         self.bchance= 0
+        self.nbach  = 0
+        self.lidod  = [5,10,25,50,100,250,500,1000]
+        self.firsta = [5,10,25,50,100,250,500,1000]
         
         if race=="undead":
             self.alive += 1
@@ -287,8 +290,8 @@ class Perso:
         return s
    
     def printlvl(self):
-        print ("[{} ({})] {} \t \t \t \t {} ⚔  \t {} 🤸 \t 💨 {} \n \33[38;2;210;236;134mMaxHP\33[0m: {} \t  \t \33[38;2;137;177;210mMaxMP\33[0m: {} \t \t \33[38;2;212;175;55mGold\33[0m: {} \n".format(
-                self.name, self.prace, self.nblife(), self.nbkill, self.nbdod, self.nbinit, self.maxhp, self.maxmp, self.gold))
+        print ("[{} ({})] {} \t \t \t \t {} ⚔  \t {} 🤸 \t 💨 {} \t 🏆 {}\n \33[38;2;210;236;134mMaxHP\33[0m: {} \t  \t \33[38;2;137;177;210mMaxMP\33[0m: {} \t \t \33[38;2;212;175;55mGold\33[0m: {} \n".format(
+                self.name, self.prace, self.nblife(), self.nbkill, self.nbdod, self.nbinit, self.nbach, self.maxhp, self.maxmp, self.gold))
 
         self.printattr()
         
@@ -689,9 +692,23 @@ def play(t=0.2):
             else:
                  print("You fought a "+name+" and won "+str(xp)+" xp, and managed to hit first, you earned "+PrettyUI.givemeans(loot, "gold")+"!")
                  per.nbinit += 1
+                 if per.nbinit == per.firsta[0]:
+                     per.bfa += 0.75
+                     per.firsta.pop(0)
+                     per.nbach += 1
+                     print("You completed an achievement, your first attack chances slightly inscrease")
+                     
         else:
             print("You fought a "+name+" and won "+str(xp)+" xp, avoided damage and earned "+str(loot)+" golds!")
             per.nbdod += 1
+            if per.nbdod == per.lidod[0]:
+                per.bpd += 0.5
+                per.bmd += 0.5
+                per.lidod.pop(0)
+                per.nbach += 1
+                print("You completed an achievement, your dodge chances slightly inscrease")
+
+                
         if per.alive >0:
             per.gold+= loot
             if per.nbkill % 17 == 0:
