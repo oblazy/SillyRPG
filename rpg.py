@@ -50,6 +50,8 @@ class Perso:
         }
     
     listattr=["CON","STR","INT","WIS","DEX","LUC","STA","SPD"]
+    listrac=list(defattr.keys())
+    listcard=["North","South","East","West"]
     
     deftal={
         "Jack of all trades":("When leveling up, each base stat is increased by one more",1),
@@ -86,7 +88,7 @@ class Perso:
         "mpot":"\33[38;2;137;177;210mMana\33[0m potion",
         "spdb":"🥾 Speed Boots",
         "dglo":"🧤 Dexterity Gloves",
-        "what":"🎩 Wizard Hat ",
+        "what":"🎩 Wizard Hat",
         "lche":"🦺 Life Chest",
         "samu":"📿 Sage Amulet",
         "4lc":"🍀 Four leaf Clover",
@@ -265,7 +267,8 @@ class Perso:
         print("*"*30 +" Congratulations *"+"*"*30)
         Perso.printlvl(self)
         print("*"*78)
-        time.sleep(1)
+        self.fluff()
+        time.sleep(1.5)
         
     def newxp(self,xp):
         self.xp+=xp
@@ -295,7 +298,7 @@ class Perso:
 
     def get_race():
         request = 'Choose one of the following race: '
-        l = [Perso.prace(x) for x in Perso.defattr.keys()]
+        l = [Perso.prace(x) for x in Perso.listrac]
         request += ', '.join(l) + ': '
         while True:
             ra = input(request)
@@ -305,11 +308,30 @@ class Perso:
                 return ra           
    
     def reduc(self,price):
-        race=random.choice(list(Perso.defattr.keys()))
+        race=random.choice(Perso.listrac)
         if self.race == race or self.race=="goblin":
             return int(0.9 * price),race
         return price,race
                 
+    def fluff(self):
+        s=""
+        box="*"*78
+        if self.lvl == 6:
+            s+=("An invading {} army is coming from the {}, brace yourself".format(Perso.prace(random.choice(Perso.listrac)),random.choice(Perso.listcard)))
+            s+="\n"+box
+        elif self.lvl == 12:
+            s+=("The army is gone, some spooky monsters are coming your way")
+            s+="\n"+box
+        elif self.lvl == 18:
+            s+=("Whaaaat? They are now coming from space?")
+            s+="\n"+box
+        elif self.lvl == 22:
+            s+=("Nagas, why does it have to be Nagas?")
+            s+="\n"+box
+        elif self.lvl == 24:
+            s+=("Void enemies? I should have stayed in bed...")
+            s+="\n"+box
+        print(s)
         
     def herbalist(self):
           price = 200
