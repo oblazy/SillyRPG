@@ -7,6 +7,9 @@ This does not aim to be anything wonderful
 import random
 import time
 
+listyes = ["y","Y","O","o","yes","YES","oui","OUI","j","J","ja","JA"]
+listno = ["n","N","no","NO","no","NO","nein","NEIN"]
+
 class PrettyUI:
     
     
@@ -41,18 +44,34 @@ class PrettyUI:
     
 class Perso:
     defattr={
-        "human":{"CON":(10,(1,2)), "STR":(10,(1,2)),"INT":(10,(1,2)),"WIS":(10,(1,2)),"DEX":(10,(1,2)),"LUC":(10,(1,2)),"STA":(10,(1,2)),"SPD":(10,(1,1))},
-        "undead":{"CON":(8,(0,2)), "STR":(11,(2,3)),"INT":(9,(1,1)),"WIS":(12,(0,1)),"DEX":(8,(1,1)),"LUC":(10,(1,2)),"STA":(14,(1,3)),"SPD":(8,(0,1))},
-        "elf":{"CON":(9,(0,1)), "STR":(8,(1,1)),"INT":(8,(2,3)),"WIS":(13,(3,4)),"DEX":(25,(3,6)),"LUC":(10,(3,4)),"STA":(11,(1,2)),"SPD":(12,(2,2))},
-        "orc":{"CON":(15,(2,3)), "STR":(10,(3,4)),"INT":(10,(0,1)),"WIS":(10,(0,1)),"DEX":(10,(0,1)),"LUC":(10,(0,1)),"STA":(15,(2,3)),"SPD":(10,(1,2))},
-        "ent":{"CON":(15,(3,3)), "STR":(10,(2,2)),"INT":(10,(1,2)),"WIS":(10,(0,1)),"DEX":(10,(0,1)),"LUC":(8,(0,1)),"STA":(12,(1,3)),"SPD":(10,(0,1))},
-        "goblin":{"CON":(15,(3,3)), "STR":(10,(2,2)),"INT":(10,(1,2)),"WIS":(10,(0,1)),"DEX":(10,(0,1)),"LUC":(8,(0,1)),"STA":(12,(1,3)),"SPD":(10,(0,1))}
+        "human"     :{"CON":(10,(1,2)), "STR":(10,(1,2)),"INT":(10,(1,2)),"WIS":(10,(1,2)),"DEX":(10,(1,2)),"LUC":(10,(1,2)),"STA":(10,(1,2)),"SPD":(10,(1,1)),"CHA":(10,(1,1)),"PER":(10,(1,1))},
+        "undead"    :{"CON":(8,(0,2)), "STR":(11,(2,3)),"INT":(9,(1,1)),"WIS":(12,(0,1)),"DEX":(8,(1,1)),"LUC":(10,(1,2)),"STA":(14,(1,3)),"SPD":(8,(0,1)),"CHA":(10,(1,1)),"PER":(10,(1,1))},
+        "elf"       :{"CON":(9,(0,1)), "STR":(8,(1,1)),"INT":(8,(2,3)),"WIS":(13,(3,4)),"DEX":(25,(3,6)),"LUC":(10,(3,4)),"STA":(11,(1,2)),"SPD":(12,(2,2)),"CHA":(10,(1,1)),"PER":(10,(1,1))},
+        "orc"       :{"CON":(15,(2,3)), "STR":(10,(3,4)),"INT":(10,(0,1)),"WIS":(10,(0,1)),"DEX":(10,(0,1)),"LUC":(10,(0,1)),"STA":(15,(2,3)),"SPD":(10,(1,2)),"CHA":(10,(1,1)),"PER":(10,(1,1))},
+        "ent"       :{"CON":(15,(3,3)), "STR":(10,(2,2)),"INT":(10,(1,2)),"WIS":(10,(0,1)),"DEX":(10,(0,1)),"LUC":(8,(0,1)),"STA":(12,(1,3)),"SPD":(10,(0,1)),"CHA":(10,(1,1)),"PER":(10,(1,1))},
+        "goblin"    :{"CON":(15,(3,3)), "STR":(10,(2,2)),"INT":(10,(1,2)),"WIS":(10,(0,1)),"DEX":(10,(0,1)),"LUC":(8,(0,1)),"STA":(12,(1,3)),"SPD":(10,(0,1)),"CHA":(10,(1,1)),"PER":(10,(1,1))}
         }
     
-    listattr=["CON","STR","INT","WIS","DEX","LUC","STA","SPD"]
-    listrac=list(defattr.keys())
-    listcard=["North","South","East","West"]
+    listattr=["CON","STR", "DEX", "INT","CHA", "WIS", "PER", "STA", "SPD", "LUC"]
     
+    listrac=list(defattr.keys())
+    
+    minipic={
+        "human"     :[" (~~~) "," |o o| ","(| . |) "," ( - ) "],
+        "undead"    :[" (())) ","/|x x| ","/| . | ","\\( - ) "],
+        "elf"       :[" /~~~/ "," |o o| ","\\| . |/"," \\ - / "],
+        "ent"       :[" \\#|#/ ","~ \\|/  ","  )|( ~","  )|(  "],
+        "goblin"    :["/(-'-)\\","\\/   \\/","/o. .o\\","\\  i  /"],
+        "wolfman"       :[" /\\-/\\ ","((o o))","\\ /_\\ /"," \\_-_/ "],
+    #    "orc"       :[" /\\-/\\ ","( o o )","\\ /.\\ /"," \\_v_/ "],
+         "orc"       :["<\\<,>/>","( 0 0 )","\\ ),( /"," \\=-=/ "],
+     
+    }
+    
+
+    
+    listcard=["North","South","East","West"]
+        
     deftal={
         "Jack of all trades":("When leveling up, each base stat is increased by one more",1),
         "MC Dodger":("Can't touch this!",1),
@@ -66,7 +85,10 @@ class Perso:
         "Scholar": ("Books are my friends",1),
         "Etherborn": ("Magic is my ally",1),
         "Lucky": ("Heads i win, tails they lose",1),
-        "Prepared": ("I always carry my potions with me",1)
+        "Prepared": ("I always carry my potions with me",1),
+        "Beginner's luck": ("I never found any Four Leaves Clover, they always have more", 1),
+        "Backstabber": ("No matter how you face me, i'm going to stab you in the back",1),
+        "Leprechaun": ("I'm lucky and i know it",1)
         }
     
     listtal=list(deftal.keys())
@@ -123,6 +145,8 @@ class Perso:
         self.bghp   = 0
         self.bmp    = 0
         self.bgmp   = 0
+        self.bfa    = 0
+        self.bchance= 0
         
         if race=="undead":
             self.alive += 1
@@ -153,7 +177,24 @@ class Perso:
             s="\t -  "
             s+=',\n\t -  '.join(lit)+"."
             print(s)  
+    
+    def printattr(self):
+        b=0
+        s=""
+        for i in Perso.listattr:
+            b+=1
+            if b%3==1:
+                s+=" "+PrettyUI.add_color(Perso.minipic[self.race][b//3],PrettyUI.racecol[self.race])+"\t"
+            s+=" "+i+" "+str(self.attr[i][0])+"\t \t"
+            if b%3==0:
+                s+="\n"
+        print(s)
         
+    def seqspider():
+        s="/╲/\\╭(•‿•)╮/\\╱\\"
+        return PrettyUI.add_color(s,(random.randint(125,230),random.randint(125,230),random.randint(125,230)))
+        
+    
     def newtal(self,tal,fill=True):
         Perso.listtal.remove(tal)
         if tal == "Divine Spark":
@@ -161,7 +202,13 @@ class Perso:
         elif tal == "Smart Goblin":
             self.gold +=100
         elif tal == "Lucky":
-            self.attr["LUC"][0]+=10
+            self.attr["LUC"][1]+=3
+        elif tal == "Beginner's luck":
+            self.attr["LUC"][0]+=10   
+        elif tal == "Backstabber":
+            self.bfa += 2
+        elif tal == "Leprechaun":
+            self.bchance += 5
         elif tal == "Prepared":
             self.items.append("lpot")
             self.items.append("mpot")
@@ -210,9 +257,11 @@ class Perso:
     def update(self,fill=True):  # Updates the dodge, red and so on for each level  
        self.pdodge  = min(int((self.attr["DEX"][0])/self.lvl**0.5)+self.bpd,75)
        self.mdodge  = min(int((self.attr["WIS"][0])/self.lvl**0.5)+self.bmd,75)
-       self.reduce  = min(int((self.attr["STA"][0] - self.lvl)/self.lvl**0.4)+self.brdc,75)
+       self.reduce  = min(int((max(0,self.attr["STA"][0] - self.lvl)/self.lvl)**0.4)+self.brdc,75)
        self.maxhp   = (15+self.bghp) * self.attr["CON"][0] +self.bhp
        self.maxmp   = (15+self.bgmp) * self.attr["INT"][0] +self.bmp
+       self.chance  = min(75, int(10*(max(0,self.attr["LUC"][0]-self.lvl)**0.4))/10)
+       self.fa      = min(int(self.attr["SPD"][0]/self.lvl**0.2),75)
        if fill:
            self.hp      = self.maxhp
            self.mp      = self.maxmp 
@@ -238,10 +287,12 @@ class Perso:
         return s
    
     def printlvl(self):
-        print ("[{} ({})] {} \t \t \t \t {} ⚔  \t {} 🤸 \t 💨 {} \n \33[38;2;210;236;134mMaxHP\33[0m: {} \t  \t \33[38;2;137;177;210mMaxMP\33[0m: {} \t \t \33[38;2;212;175;55mGold\33[0m: {} \n STR {} \t \t \t INT {}  \t \t \t WIS {} \n DEX {}  \t \t \t LUC {} \t \t \t STA {}".format(
-                self.name, self.prace, self.nblife(), self.nbkill, self.nbdod, self.nbinit, self.maxhp, self.maxmp, self.gold, self.attr["STR"][0], self.attr["INT"][0], self.attr["WIS"][0], self.attr["DEX"][0], self.attr["LUC"][0], self.attr["STA"][0]))
+        print ("[{} ({})] {} \t \t \t \t {} ⚔  \t {} 🤸 \t 💨 {} \n \33[38;2;210;236;134mMaxHP\33[0m: {} \t  \t \33[38;2;137;177;210mMaxMP\33[0m: {} \t \t \33[38;2;212;175;55mGold\33[0m: {} \n".format(
+                self.name, self.prace, self.nblife(), self.nbkill, self.nbdod, self.nbinit, self.maxhp, self.maxmp, self.gold))
 
-        print("\tP.Dodge: {}% \t \t M.Dodge: {}% \n\tC.dodge: {}% \t \t D.Reduce: {}%".format(self.pdodge,self.mdodge,self.pdodge*self.mdodge//10/10,self.reduce))  
+        self.printattr()
+        
+        print("\tP.Dodge: {}% \t \t M.Dodge: {}% \t\tC.dodge: {}% \n\tD.Reduce: {}% \t \t 1st.Att: {}% \t \t Chance: {}%".format(self.pdodge,self.mdodge,self.pdodge*self.mdodge//10/10,self.reduce,self.fa, self.chance))  
 
     def xp2lvl(lvl):
         '''
@@ -264,9 +315,9 @@ class Perso:
             self.attr[i][0]+=self.attr[i][1]+random.randint(Perso.defattr[self.race][i][1][0],Perso.defattr[self.race][i][1][1])
         Perso.update(self)
         self.hp=self.maxhp
-        print("*"*30 +" Congratulations *"+"*"*30)
+        print("*"*30 +" Congratulations *"+"*"*29)
         Perso.printlvl(self)
-        print("*"*78)
+        print("*"*31+Perso.seqspider()+"*"*31)
         self.fluff()
         time.sleep(1.5)
         
@@ -278,7 +329,7 @@ class Perso:
     def damage(self,dam,name):
         self.hp -= dam
         if self.hp<=0:
-            print ("Oh no, your character took lethal damage from a mean "+name+" :(")
+            print ("Oh no, your character took lethal damage from "+random.choice(listmean)+" "+name+" :(")
             self.alive-=1
             if self.alive>0:
                 self.hp = self.maxhp//2 + self.lvl
@@ -345,12 +396,12 @@ class Perso:
               b=0
               while b<1:
                   a=input("Do you want to buy a \33[38;2;210;236;134mLife\33[0m potion \33[38;2;210;236;134m❤\33[0m for "+str(price)+" \33[38;2;212;175;55mGold\33[0m (y/n)? ")
-                  if a=="y":
+                  if a in listyes:
                       self.gold-=price
                       self.items.append("lpot")
                       print("Thank you! Be safe!")
                       b=1
-                  elif a=="n":
+                  elif a in listno:
                       print("Oh, a bold one... I'd say you'd come back crawling but we both know you won't")
                       b=1
                   else:
@@ -368,12 +419,12 @@ class Perso:
                b=0
                while b<1:
                    a=input("Do you want to buy a \33[38;2;137;177;210mMana\33[0m potion \33[38;2;137;177;210m✿\33[0m for "+str(price)+" \33[38;2;212;175;55mGold\33[0m (y/n)? ")
-                   if a=="y":
+                   if a in listyes:
                        self.gold-=price
                        self.items.append("mpot")
                        print("Thank you! Be safe!")
                        b=1
-                   elif a=="n":
+                   elif a in listno:
                        print("Oh, a bold one... I'd say you'd come back crawling but we both know you won't")
                        b=1
                    else:
@@ -391,12 +442,12 @@ class Perso:
                b=0
                while b<1:
                    a=input("Do you want to be healed back to full \33[38;2;210;236;134mLife\33[0m for "+str(price)+" \33[38;2;212;175;55mGold\33[0m (y/n)? ")
-                   if a=="y":
+                   if a in listyes:
                        self.gold-=price
                        self.hp=self.maxhp
                        print("Thank you! Be safe!")
                        b=1
-                   elif a=="n":
+                   elif a in listno:
                        print("Oh, a bold one... I'd say you'd come back crawling but we both know you won't")
                        b=1
                    else:
@@ -410,11 +461,11 @@ class Perso:
                 b=0
                 while b<1:
                     a=input("Do you want to recoved \33[38;2;137;177;210mMana\33[0m from the spring (y/n)? ")
-                    if a=="y":
+                    if a in listyes:
                         self.mp=self.maxmp
                         print("Aaaah, what a delight!")
                         b=1
-                    elif a=="n":
+                    elif a in listno:
                         print("Ok, you know, there was no trap...")
                         b=1
                     else:
@@ -428,12 +479,12 @@ class Perso:
                     b=0
                     while b<1:
                         a=input("Do you want to buy an \33[38;2;212;175;55mAnkh ☥\33[0m from them for 2500 \33[38;2;212;175;55mGold\33[0m (y/n)? ")
-                        if a=="y":
+                        if a in listyes:
                             self.alive+=1
                             self.gold -= 2500
                             print("Here it is. Don't worry, i'll see you later anyway!")
                             b=1
-                        elif a=="n":
+                        elif a in listno:
                             print("I can't wait to see you again")
                             b=1
                         else:
@@ -451,13 +502,13 @@ class Perso:
                     b=0
                     while b<1:
                         a=input("Do you want to buy a new random \33[38;2;239;151;208mTalent\33[0m from them for "+str(price)+" \33[38;2;212;175;55mGold\33[0m (y/n)? ")
-                        if a=="y":
+                        if a in listyes:
                             tal=random.choice(Perso.listtal)
                             self.newtal(tal,False)
                             self.gold -= price
                             print("You learnt {}, congratulations".format(tal))
                             b=1
-                        elif a=="n":
+                        elif a in listno:
                             print("Some people are less talented than others")
                             b=1
                         else:
@@ -475,13 +526,13 @@ class Perso:
                     b=0
                     while b<1:
                         a=input("Do you want to buy a new random \33[38;2;239;151;208mItem\33[0m from them for "+str(price)+" \33[38;2;212;175;55mGold\33[0m (y/n)? ")
-                        if a=="y":
+                        if a in listyes:
                             ite=random.choice(Perso.liststuff)
                             self.newitem(ite,False)
                             self.gold -= price
                             print("You bought {}, congratulations".format(Perso.prettyname[ite]))
                             b=1
-                        elif a=="n":
+                        elif a in listno:
                             print("Some people think it's better to travel light")
                             b=1
                         else:
@@ -492,20 +543,20 @@ class Perso:
           b=0
           while b<1:
               a=input("Do you want to try your luck to grab it (y/n)? ")
-              if a=="y":
-                  res = random.randint(0,100+self.lvl)<(self.attr["LUC"][0]-self.lvl)
+              if a in listyes:
+                  res = random.randint(0,100) < self.chance
                   if res:
                       print("You caught it! Behold an \33[38;2;212;175;55mextra\33[0m life!")
                       self.alive += 1
                       self.hp = self.maxhp
                   else:
                       print("Oh no, you failed and took some damage")
-                      self.hp -= random.randint(10,30) * self.maxhp
+                      self.hp -= (random.randint(15,40) * self.maxhp)//100
                       if self.hp <1:
                           self.hp = 1
                           print("Luckily, the \33[38;2;212;175;55mGraal\33[0m prevented this damage from being lethal")
                   b=1
-              elif a=="n":
+              elif a in listno:
                   print("Some things are better left alone...")
                   b=1
               else:
@@ -613,7 +664,8 @@ def title():
    "(__)  (__)(__)__)   "
    "(__)__) ")
    print(str)
-      
+  
+listmean = ["a mean","a wild","an horrible","a scary","a nasty","a cryptic","a bloody","an evil","a strong"]    
     
 def play(t=0.2):
     title()
@@ -627,19 +679,18 @@ def play(t=0.2):
         name, xp, dam, loot, dod = per.fight()
         per.newxp(xp)
         if not(dod):
+            per.nbkill+=1
             initiative = random.randint(per.lvl,100)
-            if initiative > per.attr["SPD"][0]:
+            if initiative > per.fa:
                 dam = int(dam * (1-per.reduce/100))
                 Perso.damage(per,dam,name)
                 if per.alive >0:
-                    per.nbkill+=1
                     print("You fought a "+name+" and won "+str(xp)+" xp, took "+PrettyUI.givemeans(dam,"damage")+" and earned "+PrettyUI.givemeans(loot, "gold")+"!")
             else:
                  print("You fought a "+name+" and won "+str(xp)+" xp, and managed to hit first, you earned "+PrettyUI.givemeans(loot, "gold")+"!")
                  per.nbinit += 1
         else:
             print("You fought a "+name+" and won "+str(xp)+" xp, avoided damage and earned "+str(loot)+" golds!")
-            per.nbkill+=1
             per.nbdod += 1
         if per.alive >0:
             per.gold+= loot
@@ -661,14 +712,15 @@ def play(t=0.2):
                     time.sleep(3*t)
             print(per)
             time.sleep(t)
+    per.nbkill -=1
     if per.alive <1:
         print("/"+"=-"*37+"=\\")
         print("Your lvl {} {} {} died :(".format(per.lvl, per.prace, per.name))
         per.printlvl()
         Perso.printtal(per.tallist)
         Perso.printite(per.items)
-        print("\\"+"=-"*37+"=/")
+        print("\\"+"=-"*15+Perso.seqspider()+"-"+"=-"*14+"=/")
     else:
         print("You stopped your adventure, good bye.")
         
-play(0.01)
+play(0.1)
