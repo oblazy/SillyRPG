@@ -7,34 +7,75 @@ This does not aim to be anything wonderful
 import random
 import time
 
+class PrettyUI:
+    
+    
+    racecol={"human":(120,120,240),
+             "elf":(80,230,80),
+             "orc":(200,120,120),
+             "undead":(200,10,200),
+             "ent":(170,120,120)}
+    
+    OKGreen = (10,255,10)
+    Critical= (220,157,51)
+    Danger  = (200,30,30)
+    Gold    = (212,175,55)
+    
+    def add_color(msg,fore):
+        rf,gf,bf=fore
+        msg='{0}' + str(msg)
+        mat='\33[38;2;' + str(rf) +';' + str(gf) + ';' + str(bf)  +'m' 
+        return (msg .format(mat)+'\33[0m')
 
+    def givemeans(n,s):
+        if n>1:
+            return str(n)+" "+s+"s"
+        return str(n)+" "+s
+    
 class Perso:
     defattr={
-        "human":{"CON":(10,2), "STR":(10,2),"INT":(10,2),"WIS":(10,2),"DEX":(10,2),"LUC":(10,2),"STA":(10,2)},
-        "undead":{"CON":(8,3), "STR":(11,2),"INT":(9,1),"WIS":(12,1),"DEX":(8,1),"LUC":(10,2),"STA":(14,3)},
-        "elf":{"CON":(5,1), "STR":(8,2),"INT":(8,2),"WIS":(13,3),"DEX":(25,3),"LUC":(10,3),"STA":(11,1)}
+        "human":{"CON":(10,(1,2)), "STR":(10,(1,2)),"INT":(10,(1,2)),"WIS":(10,(1,2)),"DEX":(10,(1,2)),"LUC":(10,(1,2)),"STA":(10,(1,2))},
+        "undead":{"CON":(8,(0,2)), "STR":(11,(2,3)),"INT":(9,(1,1)),"WIS":(12,(0,1)),"DEX":(8,(1,1)),"LUC":(10,(1,2)),"STA":(14,(1,3))},
+        "elf":{"CON":(9,(0,1)), "STR":(8,(1,1)),"INT":(8,(2,3)),"WIS":(13,(3,4)),"DEX":(25,(3,6)),"LUC":(10,(3,4)),"STA":(11,(1,2))},
+        "orc":{"CON":(15,(2,3)), "STR":(10,(3,4)),"INT":(10,(0,1)),"WIS":(10,(0,1)),"DEX":(10,(0,1)),"LUC":(10,(0,1)),"STA":(15,(2,3))},
+        "ent":{"CON":(15,(3,3)), "STR":(10,(2,2)),"INT":(10,(1,2)),"WIS":(10,(0,1)),"DEX":(10,(0,1)),"LUC":(8,(0,1)),"STA":(12,(1,3))}
         }
     
     listattr=["CON","STR","INT","WIS","DEX","LUC","STA"]
     
+    deftal={
+        "Jack of all trades":("When leveling up, each base stat is increased by one more",1),
+        "MC Dodger":("Can't touch this!",1),
+        "Resilient": ("It's just a scratch",1),
+        "Divine Spark": ("Even death won't kill me!",1),
+        "Smart Goblin": ("Money! Money! Money!",1),
+        "Intangible": ("Not really there",1),
+        "Giant": ("I would explain, but you are very small",1),
+        "Bulky": ("I've seen many battles",1),
+        "Clever": ("I've seen things beyond your comprehension",1),
+        "Scholar": ("Books are my friends",1)
+        }
+    
+    listtal=list(deftal.keys())
+    
     '''
     CON : Max HP
     STR : Phys Damage
-    INT : Magic Damage
+    INT : Max MP
     WIS : Magic Dodge
     Dex : Phys Dodge
-    Luc : Crit ???
+    Luc : Used in encounters
     STA : Generic Damage Reduce
+    ??? : Magic Damage
     '''
     
     def __init__(self,name,race="human",sex="x"):
         self.name=name
         self.race=race
+        self.prace=Perso.prace(race)
         self.attr={}
         for i in Perso.listattr:
             self.attr[i]=Perso.defattr[race][i][0]
-        self.hp=self.attr["CON"] *10
-        self.maxhp=self.hp
         self.xp=0
         self.lvl=1
         self.sex=sex
@@ -42,24 +83,59 @@ class Perso:
         self.gold=0
         self.nbdod=0
         self.nbkill=0
+        self.lpot = 0
+        self.mpot = 0
+        tal=random.choice(Perso.listtal)
+        self.tallist=[]
         if race=="undead":
-            self.alive =2
+            self.alive +=1
+        Perso.newtal(self,tal)
         Perso.update(self)
+        Perso.welcom(self,tal)
+    
+    def prace(race):
+        if race in PrettyUI.racecol:
+            return PrettyUI.add_color(race, PrettyUI.racecol[race])
+        return race
+    
+    def welcom(self,tal):
+        print ("Welcome {}. You are a young {} ready for an adventure. You have been blessed with {}. \n [{}]: {}. \n Here we go...".format(
+                self.name, self.prace, tal, self.name, Perso.deftal[tal][0]))
+        
+    def printtal(tallist):
+        print("\n\tYou had the following talents:")
+        s="\t -  "
+        s+=',\n\t -  '.join(tallist)+"."
+        print(s)  
+        
+    def newtal(self,tal):
+        if tal=="Divine Spark":
+            self.alive +=1
+        if tal=="Smart Goblin":
+            self.gold +=100
+        self.tallist.append(tal)
    
     def __str__(self):
-        return "{}: health {}/{} \t \t lvl: {} \t \t xp: {}/{} \t \t gold: {}".format(
-                self.name, self.hp, self.maxhp, self.lvl, self.xp, 
+        return "{} ({})): \33[38;2;210;236;134mLife\33[0m: {} \t \33[38;2;137;177;210mMana\33[0m: {} \t XP: {}/{} \t \t \33[38;2;212;175;55mGold\33[0m: {}".format(
+                self.name, self.lvl, Perso.colhp(self.hp,self.maxhp), Perso.colhp(self.mp,self.maxmp), self.xp, 
                 Perso.xp2lvl(self.lvl), self.gold)
        
+    def colhp(hp,mhp):
+        if 10*hp > 9 *mhp:
+            return PrettyUI.add_color(hp, PrettyUI.OKGreen)
+        elif 10*hp < mhp:
+            return PrettyUI.add_color(hp, PrettyUI.Danger)
+        elif 3*hp < mhp:
+            return PrettyUI.add_color(hp, PrettyUI.Critical)
+        return str(hp)
    
     def printlvl(self):
-        print ("[{}]: \n ({}) \t \t health {}/{} \t  \t gold: {} \n STR {} \t \t INT {}  \t \t WIS {} \n DEX {}  \t \t LUC {} \t \t STA {}".format(
-                self.name, self.race, self.hp, self.maxhp, self.gold, self.attr["STR"], self.attr["INT"], self.attr["WIS"], self.attr["DEX"], self.attr["LUC"], self.attr["STA"]))
-    
+        print ("[{} ({})] \n \33[38;2;210;236;134mMaxHP\33[0m: {} \t  \t \33[38;2;137;177;210mMaxMP\33[0m: {} \t \t \33[38;2;212;175;55mGold\33[0m: {} \n STR {} \t \t \t INT {}  \t \t \t WIS {} \n DEX {}  \t \t \t LUC {} \t \t \t STA {}".format(
+                self.name, self.prace, self.maxhp, self.maxmp, self.gold, self.attr["STR"], self.attr["INT"], self.attr["WIS"], self.attr["DEX"], self.attr["LUC"], self.attr["STA"]))
+
+        print("\tP.Dodge: {}% \t \t M.Dodge: {}% \n\tC.dodge: {}% \t \t D.Reduce: {}%".format(self.pdodge,self.mdodge,self.pdodge*self.mdodge//10/10,self.reduce))  
     def xp2lvl(lvl):
         '''
-        
-
         Parameters
         ----------
         lvl : int
@@ -75,23 +151,54 @@ class Perso:
     def lvlup(self):
         self.xp -= Perso.xp2lvl(self.lvl)
         self.lvl += 1
+        b=0
+        if "Jack of all trades" in self.tallist:
+            b=1
         for i in Perso.listattr:
-            self.attr[i]+=random.randint(0,Perso.defattr[self.race][i][1])
+            self.attr[i]+=b+random.randint(Perso.defattr[self.race][i][1][0],Perso.defattr[self.race][i][1][1])
         Perso.update(self)
         self.hp=self.maxhp
-        print("*** Congratulations ***")
+        print("*"*30 +" Congratulations *"+"*"*30)
         Perso.printlvl(self)
+        print("*"*78)
+        time.sleep(2)
         
-    def newxp(self,xp):
+    def newxp(self,xp,t):
         self.xp+=xp
         if self.xp >= Perso.xp2lvl(self.lvl):
             Perso.lvlup(self)
+            time.sleep(10*t)
     
     def update(self):  # Updates the dodge, red and so on for each level
-        self.pdodge = min(int((self.attr["DEX"] - self.lvl)),75)
-        self.mdodge = min(int((self.attr["WIS"] - self.lvl)),75)
-        self.reduce = min(int((self.attr["STA"] - self.lvl)),75)
-        self.maxhp = 10 * self.attr["CON"]
+        p=0
+        m=0
+        r=0
+        hp=0
+        ghp=0
+        mp=0
+        gmp=0
+        if "MC Dodger" in self.tallist:
+            p+=5
+        if "Resilient" in self.tallist:
+            r+=2
+        if "Intangible" in self.tallist:
+            p+=2
+            m+=2
+        if "Giant" in self.tallist:
+            ghp+=5
+        if "Bulky" in self.tallist:
+            hp+=100
+        if "Scholar" in self.tallist:
+            gmp+=5
+        if "Clever" in self.tallist:
+            mp+=100
+        self.pdodge = min(int((self.attr["DEX"])/self.lvl**0.5)+p,75)
+        self.mdodge = min(int((self.attr["WIS"])/self.lvl**0.5)+m,75)
+        self.reduce = min(int((self.attr["STA"] - self.lvl)/self.lvl**0.4)+r,75)
+        self.maxhp = (15+ghp) * self.attr["CON"] +hp
+        self.hp=self.maxhp
+        self.maxmp = (15+gmp) * self.attr["INT"] +mp
+        self.mp=self.maxmp
     
     def damage(self,dam,name):
         self.hp -= dam
@@ -115,16 +222,128 @@ class Perso:
         return (strinou.name,xp,dam,loot,hit)
 
     def get_race():
-        """Return a legal action input by the user."""
         request = 'Choose one of the following race: '
-        request += ', '.join(Perso.defattr.keys()) + ': '
+        l = [Perso.prace(x) for x in Perso.defattr.keys()]
+        request += ', '.join(l) + ': '
         while True:
             ra = input(request)
             if ra not in Perso.defattr:
                 print('Unknown race!')
             else:
                 return ra           
+      
+                
         
+    def herbalist(self):
+          print("You encounter a traveling {} herbalist".format(Perso.prace(random.choice(list(Perso.defattr.keys())))))
+          if self.lpot > 0:
+              print("Sadly, you already carry a \33[38;2;210;236;134mLife\33[0m potion, they cannot sell you a new one")
+          elif self.gold < 200:
+              print("Sadly, you don't have enough \33[38;2;212;175;55mGold\33[0m, they cannot sell you a \33[38;2;210;236;134mLife\33[0m Potion")
+          else:
+              b=0
+              while b<1:
+                  a=input("Do you want to buy a \33[38;2;210;236;134mLife\33[0m potion for 200 \33[38;2;212;175;55mGold\33[0m (y/n)? ")
+                  if a=="y":
+                      self.gold-=200
+                      self.lpot+=1
+                      print("Thank you! Be safe!")
+                      b=1
+                  elif a=="n":
+                      print("Oh, a bold one... I'd say you'd come back crawling but we both know you won't")
+                      b=1
+                  else:
+                      print("That's not a valid answer, please remove the arrow from your ear")
+                      
+    def alchemist(self):
+           print("You encounter a traveling {} alchemist".format(Perso.prace(random.choice(list(Perso.defattr.keys())))))
+           if self.mpot > 0:
+               print("Sadly, you already carry a \33[38;2;137;177;210mMana\33[0m potion, they cannot sell you a new one")
+           elif self.gold < 150:
+               print("Sadly, you don't have enough \33[38;2;212;175;55mGold\33[0m, they cannot sell you a \33[38;2;137;177;210mMana\33[0m Potion")
+           else:
+               b=0
+               while b<1:
+                   a=input("Do you want to buy a \33[38;2;137;177;210mMana\33[0m potion for 150 \33[38;2;212;175;55mGold\33[0m (y/n)? ")
+                   if a=="y":
+                       self.gold-=150
+                       self.mpot+=1
+                       print("Thank you! Be safe!")
+                       b=1
+                   elif a=="n":
+                       print("Oh, a bold one... I'd say you'd come back crawling but we both know you won't")
+                       b=1
+                   else:
+                       print("That's not a valid answer, please remove the arrow from your ear")
+                       
+    def healer(self):
+           print("You encounter a traveling {} healer".format(Perso.prace(random.choice(list(Perso.defattr.keys())))))
+           if self.hp >= self.maxhp:
+               print("You are already at full \33[38;2;210;236;134mLife\33[0m, you don't need their help")
+           elif self.gold < 150:
+               print("Sadly, you don't have enough \33[38;2;212;175;55mGold\33[0m, for their service")
+           else:
+               b=0
+               while b<1:
+                   a=input("Do you want to be healed back to full \33[38;2;210;236;134mLife\33[0m for 150 \33[38;2;212;175;55mGold\33[0m (y/n)? ")
+                   if a=="y":
+                       self.gold-=150
+                       self.hp=self.maxhp
+                       print("Thank you! Be safe!")
+                       b=1
+                   elif a=="n":
+                       print("Oh, a bold one... I'd say you'd come back crawling but we both know you won't")
+                       b=1
+                   else:
+                       print("That's not a valid answer, please remove the arrow from your ear")
+                       
+    def mspring(self):
+            print("You encounter a magic spring")
+            if self.mp >= self.maxmp:
+                print("Sadly, you are already at Max \33[38;2;137;177;210mMana\33[0m, the spring is useless")
+            else:
+                b=0
+                while b<1:
+                    a=input("Do you want to recoved \33[38;2;137;177;210mMana\33[0m from the spring (y/n)? ")
+                    if a=="y":
+                        self.mp=self.maxmp
+                        print("Aaaah, what a delight!")
+                        b=1
+                    elif a=="n":
+                        print("Ok, you know, there was no trap...")
+                        b=1
+                    else:
+                        print("That's not a valid answer, please remove the arrow from your ear")                    
+     
+    def oracle(self):
+          print("You encounter a traveling {} oracle".format(Perso.prace(random.choice(list(Perso.defattr.keys())))))
+          print("They are unimpressed")
+
+   
+    def graal(self):
+          print("You found the \33[38;2;212;175;55mGraal\33[0m!!")
+          b=0
+          while b<1:
+              a=input("Do you want to try your luck to grab it (y/n)? ")
+              if a=="y":
+                  res = random.randint(0,100)<(self.attr["LUC"]-self.lvl)
+                  if res:
+                      print("You caught it! Behold an \33[38;2;212;175;55mextra\33[0m life!")
+                      self.alive += 1
+                      self.hp = self.maxhp
+                  else:
+                      print("Oh no, you failed and took some damage")
+                      self.hp -= random.randint(3, 8)
+                      if self.hp <1:
+                          self.hp = 1
+                          print("Luckily, the \33[38;2;212;175;55mGraal\33[0m prevented this damage from being lethal")
+                  b=1
+              elif a=="n":
+                  print("Some things are better left alone...")
+                  b=1
+              else:
+                  print("That's not a valid answer, please remove the arrow from your ear")      
+           
 class Mon:
     
     defmon= {"cryptographer":(3,0,1,3), "moth":(1,1,0,0), 
@@ -176,23 +395,31 @@ class Mon:
         monstrinou = Mon(name,c)
         return monstrinou
         
-
+    
+      
     
 def play(t=0.2):
     n=input("Enter your character name: ")
     r=Perso.get_race()
     per=Perso(n,r)
-    Perso.printlvl(per)
+    time.sleep(2)
+    per.printlvl()
+    time.sleep(1)
 #    b='y'
     while (per.alive >0):
-        name, xp, dam, loot, hit = Perso.fight(per)
-        Perso.newxp(per,xp)
+        name, xp, dam, loot, hit = per.fight()
+        per.newxp(xp,t)
         if not(hit):
             dam = int(dam * (1-per.reduce/100))
             Perso.damage(per,dam,name)
             if per.alive >0:
                 per.nbkill+=1
-                print("You fought a "+name+" and won "+str(xp)+" xp, took "+str(dam)+" damage and earned "+str(loot)+" golds!")
+                print("You fought a "+name+" and won "+str(xp)+" xp, took "+PrettyUI.givemeans(dam,"damage")+" and earned "+PrettyUI.givemeans(loot, "gold")+"!")
+                if per.nbkill % 25 == 0 and random.randint(0,50)<per.attr["LUC"]:
+                    enclist=[per.alchemist,per.herbalist,per.healer,per.mspring,per.oracle,per.graal]
+                    a=random.choice(enclist)
+                    a()
+                    
         else:
             print("You fought a "+name+" and won "+str(xp)+" xp, avoided damage and earned "+str(loot)+" golds!")
             per.nbdod += 1
@@ -201,9 +428,10 @@ def play(t=0.2):
             print(per)
             time.sleep(t)
     if per.alive <1:
-        print("*"+"=-"*29+"=*")
-        print("Your lvl {} {} {} died, after dodging {} times and killing {} monsters".format(per.lvl, per.race, per.name, per.nbdod, per.nbkill))
-        Perso.printlvl(per)
+        print("*"+"=-"*37+"=*")
+        print("Your lvl {} {} {} died, after dodging {} times and killing {} monsters".format(per.lvl, per.prace, per.name, per.nbdod, per.nbkill))
+        per.printlvl()
+        Perso.printtal(per.tallist)
     else:
         print("You stopped your adventure, good bye.")
         
