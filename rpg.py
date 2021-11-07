@@ -755,13 +755,13 @@ def play(t=0.2):
     b = False
     if os.path.isfile('./Silly_save.sav'):
         g = True
-        while g:
-            a = input("Save file detected do you want to load it (y/n)? ")
+        while >0:
+            a = input("Save file detected do you want to load it (y/n)? (Refusing will overwrite it) ")
             if a in listyes:
                 b = True
                 g = False
             elif a in listno:
-                g =  False
+                g = False
 
     if b :
         print("Loading...")
