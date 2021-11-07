@@ -338,7 +338,8 @@ class Perso:
             self.attr[i][0]+=self.attr[i][1]+random.randint(Perso.defattr[self.race][i][1][0],Perso.defattr[self.race][i][1][1])
         Perso.update(self)
         self.hp=self.maxhp
-        print("*"*30 +" Congratulations *"+"*"*29)
+        os.system('cls' if os.name == 'nt' else 'clear')
+        print("\n"+"*"*30 +" Congratulations *"+"*"*29)
         Perso.printlvl(self)
         print("*"*31+PrettyUI.seqspider()+"*"*31)
         self.fluff()
@@ -581,7 +582,14 @@ class Perso:
                 else:
                     b=0
                     while b<1:
-                        a=input("Do you want to buy an "+PrettyUI.add_color("Ankh ☥",PrettyUI.Gold)+" from them for 2500 "+PrettyUI.add_color("Gold",PrettyUI.Gold)+" "+yn+"? ")
+                        stra=PrettyUI.add_color(".d88b.",PrettyUI.Gold)+"\n"
+                        stra+=PrettyUI.add_color("88  88",PrettyUI.Gold)+"                          Do you want to buy\n"
+                        stra+=PrettyUI.add_color("'8bd8'",PrettyUI.Gold)+"\n"
+                        stra+=PrettyUI.add_color(" '88'",PrettyUI.Gold)+"                           to buy an "+PrettyUI.add_color("Ankh ☥",PrettyUI.Gold)+"\n"
+                        stra+=PrettyUI.add_color("o8888o",PrettyUI.Gold)+"\n"
+                        stra+=PrettyUI.add_color("  88",PrettyUI.Gold)+"                            for 2500 "+PrettyUI.add_color("Gold",PrettyUI.Gold)+" "+yn+"?\n"
+                        stra+=PrettyUI.add_color(" d88b",PrettyUI.Gold)+"\n"
+                        a = input(stra)
                         if a in listyes:
                             self.alive+=1
                             self.gold -= 2500
@@ -657,9 +665,16 @@ class Perso:
           print("You found the "+PrettyUI.add_color("Graal",PrettyUI.Gold)+"!!")
           b=0
           while b<1:
-              a=input("Do you want to try your luck to grab it "+yn+"? ")
+              stra=PrettyUI.add_color(" _..,----,.._ ",PrettyUI.Gold)+"\n"
+              stra+=PrettyUI.add_color(";'-.,____,.-';",PrettyUI.Gold)+"                             Do you want\n"
+              stra+=PrettyUI.add_color("|            |",PrettyUI.Gold)+"\n"
+              stra+=PrettyUI.add_color(")            (",PrettyUI.Gold)+"                           to try your luck\n"
+              stra+=PrettyUI.add_color(" \          / ",PrettyUI.Gold)+"\n"
+              stra+=PrettyUI.add_color("  `,.____.,'  ",PrettyUI.Gold)+"                          and grab it "+yn+"?\n"
+              stra+=PrettyUI.add_color("   '------'   ",PrettyUI.Gold)+"\n"
+              a = input(stra)
               if a in listyes:
-                  res = random.randint(0,100) < self.chance
+                  res = self.roll(self.chance)
                   if res:
                       print("You caught it! Behold an "+PrettyUI.add_color("extra",PrettyUI.Gold)+" life!")
                       self.alive += 1
@@ -849,7 +864,6 @@ def play(t=0.2):
 t=0.1
 
 price=4399
-
 if len(sys.argv) > 1:
     t=int(sys.argv[1])/10
 play(t)
