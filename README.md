@@ -29,10 +29,10 @@ You're an adventurer in a wonderland, and are chasing monsters to find gold and 
 - [X] Talents
 - [ ] Let the attributes do something (in progress)
 - [ ] Cute interface (in progress... ish)
-- [ ] Weapons / Stuff ?
+- [ ] Weapons / Stuff ? (ish)
 - [ ] Quests
 - [ ] Saga
-- [ ] Savefile
+- [X] Auto saving every 23 fights (and can reload)
 - [ ] "Protection" on the savefile
 - [ ] ???
 - [ ] Get the first Nobel Prize for excellence in Video Game dev 
