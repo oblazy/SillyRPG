@@ -151,9 +151,12 @@ class Perso:
         self.bgmp   = 0
         self.bfa    = 0
         self.bchance= 0
+
         self.nbach  = 0
         self.lidod  = [5,10,25,50,100,250,500,1000]
-        self.firsta = [5,10,25,50,100,250,500,1000]
+        self.lifsa  = [5,10,25,50,100,250,500,1000]
+        self.lifig  = [5,10,25,50,100,250,500,1000]
+
 
         if race=="undead":
             self.alive += 1
@@ -165,6 +168,11 @@ class Perso:
         if race in PrettyUI.racecol:
             return PrettyUI.add_color(race, PrettyUI.racecol[race])
         return race
+
+    def achiev(self,list,s="an"):
+        list.pop(0)
+        self.nbach += 1
+        print("You completed {} achievement, here's a little boost for you".format(s))
 
     def welcom(self,tal):
         print ("Welcome {}. You are a young {} ready for an adventure. You have been blessed with {}. \n [{}]: {}. \n Here we go...".format(
@@ -264,7 +272,7 @@ class Perso:
        self.maxhp   = (15+self.bghp) * self.attr["CON"][0] +self.bhp
        self.maxmp   = (15+self.bgmp) * self.attr["INT"][0] +self.bmp
        self.chance  = min(75, int(10*(max(0,self.attr["LUC"][0]-self.lvl)**0.4))/10)
-       self.fa      = min(int(self.attr["SPD"][0]/self.lvl**0.2),75)
+       self.fa      = min(int(self.attr["SPD"][0]/self.lvl**0.2+self.bfa),75)
        if fill:
            self.hp      = self.maxhp
            self.mp      = self.maxmp
@@ -330,24 +338,74 @@ class Perso:
             Perso.lvlup(self)
 
     def damage(self,dam,name):
-        self.hp -= dam
+        self.hp -= int(dam * (1-self.reduce/100))
         if self.hp<=0:
-            print ("Oh no, your character took lethal damage from "+random.choice(listmean)+" "+name+" :(")
+            print ("Oh no, your character took lethal damage from the "+name+" :(")
             self.alive-=1
             if self.alive>0:
-                self.hp = self.maxhp//2 + self.lvl
+                self.hp = self.maxhp//2
 
     def dodge(self,t):
         hit = random.randint(0,100)
         res = [self.pdodge>hit,self.mdodge>hit,self.pdodge>hit or self.mdodge>hit][t]
         return res
 
+    def roll(self,att,val=100):
+        return random.randint(0,val) < att
+
+
+    def handlefight(self):
+        name, xp, dam, loot, dod = self.fight()
+        self.newxp(xp)
+        self.nbkill+=1
+        if self.nbkill == self.lifig[0]:
+            self.attr[random.choice(Perso.listattr)][0] += 1
+            self.achiev(self.lifig,"a slaying")
+        if not(dod):                                            # If not dodged
+            if not(self.roll(self.fa,100+self.lvl)):            # If no sneak attack
+                self.damage(dam,name)
+                if self.alive > 0:
+                    print("You fought "+random.choice(listmean)+" "+name+" and won "+str(xp)+" xp, took "+PrettyUI.givemeans(dam,"damage")+" and earned "+PrettyUI.givemeans(loot, "gold")+"!")
+            else:
+                 print("You sneaked on "+random.choice(listmean)+" "+name+" and won "+str(xp)+" xp, you also earned "+PrettyUI.givemeans(loot, "gold")+"!")
+                 self.nbinit += 1
+                 if self.nbinit == self.lifsa[0]:
+                     self.bfa += 0.75
+                     self.achiev(self.lifsa,"a celerity")
+
+        else:
+            print("You fought a "+name+" and won "+str(xp)+" xp, avoided damage and earned "+str(loot)+" golds!")
+            self.nbdod += 1
+            if self.nbdod == self.lidod[0]:
+                self.bpd += 0.5
+                self.bmd += 0.5
+                self.achiev(self.lidod,"a dodging")
+
+        if self.alive >0:
+            self.gold+= loot
+            if self.nbkill % 17 == 0:
+                    enclist=[self.alchemist,self.herbalist,self.healer,self.mspring,self.oracle,self.graal,self.osiris,self.blacksmith]
+                    a=random.choice(enclist)
+                    a()
+
+            if "lpot" in self.items and self.hp < 0.2 * self.maxhp:
+                    print("Auto-using a \33[38;2;210;236;134mLife\33[0m potion")
+                    self.hp += int(0.4*self.maxhp)
+                    self.items.remove("lpot")
+
+            if "mpot" in self.items and self.mp < 0.2 * self.maxmp:
+                    print("Auto-using a \33[38;2;137;177;210mMana\33[0m potion")
+                    self.mp += int(0.4*self.maxmp)
+                    self.items.remove("mpot")
+            print(self)
+
+
     def fight(self):
-        strinou=Mon.pickmonster(self.lvl)
-        xp=random.randint(max(0,strinou.xp-2),strinou.xp+self.lvl)
-        dam = random.randint(max(0,strinou.dam-5),strinou.dam+self.lvl)
-        hit = Perso.dodge(self,strinou.typ)
-        loot = random.randint(max(0,strinou.loot-5),strinou.loot+self.lvl)
+        strinou = Mon.pickmonster(self.lvl)
+        xp      = random.randint(max(0,strinou.xp-2),strinou.xp+self.lvl)
+        dam     = random.randint(max(0,strinou.dam-5),strinou.dam+self.lvl)
+        hit     = self.dodge(strinou.typ)
+        loot    = random.randint(max(0,strinou.loot-5),strinou.loot+self.lvl)
         return (strinou.name,xp,dam,loot,hit)
 
     def get_race():
@@ -390,7 +448,7 @@ class Perso:
     def herbalist(self):
           price = 200
           price,race = self.reduc(price)
-          print("You encounter a traveling {} herbalist".format(Perso.prace(race)))
+          print("You encounter {} {} herbalist".format(random.choice(listshop),Perso.prace(race)))
           if "lpot" in self.items:
               print("Sadly, you already carry a \33[38;2;210;236;134mLife\33[0m potion \33[38;2;210;236;134m❤\33[0m, they cannot sell you a new one")
           elif self.gold < price:
@@ -413,7 +471,7 @@ class Perso:
     def alchemist(self):
            price = 150
            price,race = self.reduc(price)
-           print("You encounter a traveling {} alchemist".format(Perso.prace(race)))
+           print("You encounter {} {} alchemist".format(random.choice(listshop),Perso.prace(race)))
            if "mpot" in self.items:
                print("Sadly, you already carry a \33[38;2;137;177;210mMana\33[0m potion \33[38;2;137;177;210m✿\33[0m, they cannot sell you a new one")
            elif self.gold < price:
@@ -436,7 +494,7 @@ class Perso:
     def healer(self):
            price = 150
            price,race = self.reduc(price)
-           print("You encounter a traveling {} healer".format(Perso.prace(race)))
+           print("You encounter {} {} healer".format(random.choice(listshop),Perso.prace(race)))
            if self.hp >= self.maxhp:
                print("You are already at full \33[38;2;210;236;134mLife\33[0m, you don't need their help")
            elif self.gold < price:
@@ -496,7 +554,7 @@ class Perso:
     def oracle(self):
           price = 2200
           price,race = self.reduc(price)
-          print("You encounter a traveling {} oracle".format(Perso.prace(race)))
+          print("You encounter {} {} oracle".format(random.choice(listshop),Perso.prace(race)))
           if  len(Perso.listtal) ==0:
               print("You have nothing new to learn")
           elif self.gold < price:
@@ -520,7 +578,7 @@ class Perso:
     def blacksmith(self):
           price = 1600
           price,race = self.reduc(price)
-          print("You encounter a traveling {} blascksmith".format(Perso.prace(race)))
+          print("You encounter {} {} blascksmith".format(random.choice(listshop),Perso.prace(race)))
           if  len(Perso.liststuff) ==0:
               print("You have nothing new to buy")
           elif self.gold < price:
@@ -668,7 +726,9 @@ def title():
    "(__)__) ")
    print(str)
 
-listmean = ["a mean","a wild","an horrible","a scary","a nasty","a cryptic","a bloody","an evil","a strong"]
+listmean = ["a mean","a wild","an horrible","a scary","a nasty","a cryptic","a bloody","an evil","a strong","a brooding"]
+listshop = ["a traveling","a lost","a friendly","an exhausted","a curious","a clumsy","an interested","an enigmatic"]
+
 
 def play(t=0.2):
     title()
@@ -679,56 +739,8 @@ def play(t=0.2):
     time.sleep(10*t)
 #    b='y'
     while (per.alive >0):
-        name, xp, dam, loot, dod = per.fight()
-        per.newxp(xp)
-        if not(dod):
-            per.nbkill+=1
-            initiative = random.randint(per.lvl,100)
-            if initiative > per.fa:
-                dam = int(dam * (1-per.reduce/100))
-                Perso.damage(per,dam,name)
-                if per.alive >0:
-                    print("You fought a "+name+" and won "+str(xp)+" xp, took "+PrettyUI.givemeans(dam,"damage")+" and earned "+PrettyUI.givemeans(loot, "gold")+"!")
-            else:
-                 print("You fought a "+name+" and won "+str(xp)+" xp, and managed to hit first, you earned "+PrettyUI.givemeans(loot, "gold")+"!")
-                 per.nbinit += 1
-                 if per.nbinit == per.firsta[0]:
-                     per.bfa += 0.75
-                     per.firsta.pop(0)
-                     per.nbach += 1
-                     print("You completed an achievement, your first attack chances slightly inscrease")
-
-        else:
-            print("You fought a "+name+" and won "+str(xp)+" xp, avoided damage and earned "+str(loot)+" golds!")
-            per.nbdod += 1
-            if per.nbdod == per.lidod[0]:
-                per.bpd += 0.5
-                per.bmd += 0.5
-                per.lidod.pop(0)
-                per.nbach += 1
-                print("You completed an achievement, your dodge chances slightly inscrease")
-
-
-        if per.alive >0:
-            per.gold+= loot
-            if per.nbkill % 17 == 0:
-                    enclist=[per.alchemist,per.herbalist,per.healer,per.mspring,per.oracle,per.graal,per.osiris,per.blacksmith]
-                    a=random.choice(enclist)
-                    a()
-
-            if "lpot" in per.items and per.hp < 0.2 * per.maxhp:
-                    print("Auto-using a \33[38;2;210;236;134mLife\33[0m potion")
-                    per.hp += int(0.4*per.maxhp)
-                    per.items.remove("lpot")
-                    time.sleep(3*t)
-
-            if "mpot" in per.items and per.mp < 0.2 * per.maxmp:
-                    print("Auto-using a \33[38;2;137;177;210mMana\33[0m potion")
-                    per.mp += int(0.4*per.maxmp)
-                    per.items.remove("mpot")
-                    time.sleep(3*t)
-            print(per)
-            time.sleep(t)
+        per.handlefight()
+        time.sleep(t)
     per.nbkill -=1
     if per.alive <1:
         print("/"+"=-"*37+"=\\")
