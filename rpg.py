@@ -4,6 +4,7 @@ Initially done by Olivier Blazy
 This does not aim to be anything wonderful
 """
 
+import sys
 import random
 import time
 import pickle
@@ -332,7 +333,7 @@ class Perso:
         Perso.printlvl(self)
         print("*"*31+PrettyUI.seqspider()+"*"*31)
         self.fluff()
-        time.sleep(1.5)
+        time.sleep(1)
 
     def newxp(self,xp):
         self.xp+=xp
@@ -755,7 +756,7 @@ def play(t=0.2):
     b = False
     if os.path.isfile('./Silly_save.sav'):
         g = True
-        while >0:
+        while g:
             a = input("Save file detected do you want to load it (y/n)? (Refusing will overwrite it) ")
             if a in listyes:
                 b = True
@@ -798,4 +799,8 @@ def play(t=0.2):
     else:
         print("You stopped your adventure, good bye.")
 
-play(0.1)
+t=0.1
+
+if len(sys.argv) > 1:
+    t=int(sys.argv[1])/10
+play(t)
