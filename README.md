@@ -22,6 +22,15 @@ You're an adventurer in a wonderland, and are chasing monsters to find gold and 
 - An optinal argument exist to determine the speed of the program. 0 is the fastest, 1 is normal, more is slower
 - Watch the screen and decide your fate :)
 
+## Troubleshooting:
+
+- Missing module? There are some dependencies, maybe you are missing one? (sty?)
+<pre> pip install sty sys random time pickle os</pre>
+
+- Colors are derpy... We are working on this, please tell us which system
+
+- 
+
 ## Things to come!
 
 - [ ] Interactivity
