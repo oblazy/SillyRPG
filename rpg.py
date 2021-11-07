@@ -6,9 +6,10 @@ This does not aim to be anything wonderful
 
 import sys
 import random
-import time
+from time import sleep
 import pickle
 import os
+import curses, curses.panel
 from sty import fg, bg, ef, rs
 
 listyes = ["y","Y","O","o","yes","YES","oui","OUI","j","J","ja","JA"]
@@ -382,7 +383,7 @@ class Perso:
         Perso.printlvl(self)
         print("*"*32+PrettyUI.seqspider()+"*"*32)
         self.fluff()
-        time.sleep(1)
+        sleep(1)
 
     def newxp(self,xp):
         self.xp+=xp
@@ -443,7 +444,7 @@ class Perso:
 
     def handlencounter(self):
         print("\n")
-        enclist=[self.alchemist,self.herbalist,self.healer,self.mspring,self.oracle,self.graal,self.osiris,self.blacksmith]
+        enclist=[self.alchemist,self.herbalist,self.healer,self.mspring,self.oracle,self.graal,self.osiris,self.blacksmith,self.vampireoverlord]
         a=random.choice(enclist)
         a()
         print("\n")
@@ -768,6 +769,32 @@ class Perso:
                   b=1
               else:
                   PrettyUI.invalid_ans()
+    def vampireoverlord(self):
+        gold = 500
+        print("\t You encounter a rich vampire")
+        b=0
+        while b<1:
+            tab1 =["Do you want to get bitten", "lose half your current Life","and get "+str(gold)+" Gold (y/n)?"]
+            tab  =["Do you want to get bitten", "lose half your current "+PrettyUI.add_color("Life",PrettyUI.Life),"and get "+str(gold)+" "+PrettyUI.add_color("Gold",PrettyUI.Gold)+" "+ yn+"?"]
+            ltabl=PrettyUI.box_strings(tab1,tab)
+            stra=""+"\t"*4+ltabl[0]+"\n"
+            stra+=PrettyUI.add_color("      _______",PrettyUI.Life)+"\t"*3+ltabl[1]+"\n"
+            stra+=PrettyUI.add_color("    .'_/_|_\\_'.",PrettyUI.Life)+"\t"*3+ltabl[2]+"\n"
+            stra+=PrettyUI.add_color("    \\`\\  |  /`/",PrettyUI.Life)+"\t"*3+ltabl[3]+"\n"
+            stra+=PrettyUI.add_color("     `\\\\ | //'",PrettyUI.Life)+"\t"*3+ltabl[4]+"\n"
+            stra+=PrettyUI.add_color("       `\\|/`",PrettyUI.Life)+"\t"*3+ltabl[5]+"\n"
+            stra+=PrettyUI.add_color("         `"  ,PrettyUI.Life)+"\t"*3+ltabl[6]+"\n"
+            a=input(stra)
+            if a in listyes:
+                self.hp -= self.hp //2
+                self.gold += gold
+                print("Thanks for the meal")
+                b=1
+            elif a in listno:
+                print("Why do i bother")
+                b=1
+            else:
+                PrettyUI.invalid_ans()
 
 class Mon:
 
@@ -874,12 +901,11 @@ def title():
     "(__)  (__)(__)__)   "
     "(__)__) "
     "\n\n")
-   print(str)
+   return(str)
 
 
 listmean = ["a mean","a wild","an horrible","a scary","a nasty","a cryptic","a bloody","an evil","a strong","a brooding"]
 listshop = ["a traveling","a lost","a friendly","an exhausted","a curious","a clumsy","an interested","an enigmatic"]
-
 
 def save_per_to_file(self):
     with open('Silly_save.sav', 'wb') as save_file:
@@ -891,7 +917,7 @@ def load_per_from_file():
         return per
 
 def play(t=0.2):
-    title()
+    print(title())
     b = False
     if os.path.isfile('./Silly_save.sav'):
         g = True
@@ -914,9 +940,8 @@ def play(t=0.2):
         n=input("Please, enter your character name: ")
         r=Perso.get_race()
         per=Perso(n,r)
-
     #per.printlvl()
-    time.sleep(10*t)
+    sleep(10*t)
 
     while (per.alive > 0):
         per.handlefight()
@@ -924,7 +949,7 @@ def play(t=0.2):
             per.handlencounter()
         per.checkachiev()
         per.autopot()
-        time.sleep(t)
+        sleep(2*t)
         if per.nbkill % 23 == 0:
             save_per_to_file(per)
 
@@ -941,6 +966,9 @@ def play(t=0.2):
         print("You stopped your adventure, good bye.")
 
 t=0.1
+
+
+
 
 if len(sys.argv) > 1:
     t=int(sys.argv[1])/10
