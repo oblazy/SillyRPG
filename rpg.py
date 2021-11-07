@@ -477,7 +477,14 @@ class Perso:
           else:
               b=0
               while b<1:
-                  a=input("Do you want to buy a "+PrettyUI.add_color("Life",PrettyUI.Life)+" potion "+PrettyUI.add_color("❤",PrettyUI.Life)+" for "+str(price)+" "+PrettyUI.add_color("Gold",PrettyUI.Gold)+" "+ yn+"? ")
+                  stra=PrettyUI.add_color("  .-|",PrettyUI.Life)+"\n"
+                  stra+=PrettyUI.add_color(".-'-'-. ",PrettyUI.Life)+"                      Do you want to buy a \n"
+                  stra+=PrettyUI.add_color(":-...-: ",PrettyUI.Life)+"\n"
+                  stra+=PrettyUI.add_color("|;    |   ",PrettyUI.Life)+"                        "+PrettyUI.add_color("Life",PrettyUI.Life)+" potion "+PrettyUI.add_color("❤",PrettyUI.Life)+"\n"
+                  stra+=PrettyUI.add_color("|;:   |   ",PrettyUI.Life)+"\n"
+                  stra+=PrettyUI.add_color("|;:.._|   ",PrettyUI.Life)+"                    for "+str(price)+" "+PrettyUI.add_color("Gold",PrettyUI.Gold)+" "+ yn+"? "+"\n"
+                  stra+=PrettyUI.add_color("`-...-'  ",PrettyUI.Life)+"\n"
+                  a=input(stra)
                   if a in listyes:
                       self.gold-=price
                       self.items.append("lpot")
@@ -500,7 +507,14 @@ class Perso:
            else:
                b=0
                while b<1:
-                   a=input("Do you want to buy a "+PrettyUI.add_color("Mana",PrettyUI.Mana)+" potion "+PrettyUI.add_color("✿",PrettyUI.Mana)+" for "+str(price)+" "+PrettyUI.add_color("Gold",PrettyUI.Gold)+" "+yn+"? ")
+                   stra=PrettyUI.add_color("  .-|",PrettyUI.Mana)+"\n"
+                   stra+=PrettyUI.add_color(".-'-'-. ",PrettyUI.Mana)+"                      Do you want to buy a \n"
+                   stra+=PrettyUI.add_color(":-...-: ",PrettyUI.Mana)+"\n"
+                   stra+=PrettyUI.add_color("|;    |   ",PrettyUI.Mana)+"                        "+PrettyUI.add_color("Mana",PrettyUI.Mana)+" potion "+PrettyUI.add_color("✿",PrettyUI.Mana)+"\n"
+                   stra+=PrettyUI.add_color("|;:   |   ",PrettyUI.Mana)+"\n"
+                   stra+=PrettyUI.add_color("|;:.._|   ",PrettyUI.Mana)+"                    for "+str(price)+" "+PrettyUI.add_color("Gold",PrettyUI.Gold)+" "+ yn+"? "+"\n"
+                   stra+=PrettyUI.add_color("`-...-'  ",PrettyUI.Mana)+"\n"
+                   a=input(stra)
                    if a in listyes:
                        self.gold-=price
                        self.items.append("mpot")
@@ -835,8 +849,6 @@ def play(t=0.2):
 t=0.1
 
 price=4399
-
-
 
 if len(sys.argv) > 1:
     t=int(sys.argv[1])/10
