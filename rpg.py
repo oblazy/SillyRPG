@@ -78,6 +78,18 @@ class PrettyUI:
         l.append("*"*(m+2))
         return l
 
+    def invalid_ans():
+        s="\t 🔥 This is not a valid answer. "
+        lsilly=["Please remove the arrow from your ear and try again.",
+        "I guess some nasty gremlin ran on your keyboard.",
+        "Sometimes, you can blame your cat, but maybe not today.",
+        "Are you trying to list the error messages?",
+        "Try to type do do do do, try to type do do do do, try to type.",
+        "Take a deep breath, and try again.",
+        "What is yellow, and equivalent to the axiom of Choice? Zorn's lemma!"]
+        s+=random.choice(lsilly)+" 🔥"
+        print(s)
+
 yn = "("+fg(PrettyUI.OKGreen)+"y"+fg.rs+"/"+fg(PrettyUI.Critical)+"n"+fg.rs+")"
 
 
@@ -465,7 +477,7 @@ class Perso:
         while True:
             ra = input(request)
             if ra not in Perso.defattr:
-                print('Unknown race!')
+                PrettyUI.invalid_ans()
             else:
                 return ra
 
@@ -529,7 +541,7 @@ class Perso:
                       print("Oh, a bold one... I'd say you'd come back crawling but we both know you won't")
                       b=1
                   else:
-                      print("That's not a valid answer, please remove the arrow from your ear")
+                      PrettyUI.invalid_ans()
 
     def alchemist(self):
            price = 150
@@ -562,7 +574,7 @@ class Perso:
                        print("Oh, a bold one... I'd say you'd come back crawling but we both know you won't")
                        b=1
                    else:
-                       print("That's not a valid answer, please remove the arrow from your ear")
+                       PrettyUI.invalid_ans()
 
     def healer(self):
            price = 150
@@ -595,7 +607,7 @@ class Perso:
                        print("Oh, a bold one... I'd say you'd come back crawling but we both know you won't")
                        b=1
                    else:
-                       print("That's not a valid answer, please remove the arrow from your ear")
+                       PrettyUI.invalid_ans()
 
     def mspring(self):
             print("\t You encounter a magic spring")
@@ -623,7 +635,7 @@ class Perso:
                         print("Ok, you know, there was no trap...")
                         b=1
                     else:
-                        print("That's not a valid answer, please remove the arrow from your ear")
+                        PrettyUI.invalid_ans()
 
     def osiris(self):
                 print("\t You encounter a mystical god")
@@ -653,7 +665,7 @@ class Perso:
                             print("I can't wait to see you again")
                             b=1
                         else:
-                            print("That's not a valid answer, please remove the arrow from your ear")
+                            PrettyUI.invalid_ans()
 
     def oracle(self):
           price = 2200
@@ -687,7 +699,7 @@ class Perso:
                             print("Some people are less talented than others")
                             b=1
                         else:
-                            print("That's not a valid answer, please remove the arrow from your ear")
+                            PrettyUI.invalid_ans()
 
     def blacksmith(self):
           price = 1600
@@ -721,7 +733,7 @@ class Perso:
                             print("Some people think it's better to travel light")
                             b=1
                         else:
-                            print("That's not a valid answer, please remove the arrow from your ear")
+                            PrettyUI.invalid_ans()
 
     def graal(self):
           print("\t You found the "+PrettyUI.add_color("Graal",PrettyUI.Gold)+"!!")
@@ -755,7 +767,7 @@ class Perso:
                   print("Some things are better left alone...")
                   b=1
               else:
-                  print("That's not a valid answer, please remove the arrow from your ear")
+                  PrettyUI.invalid_ans()
 
 class Mon:
 
@@ -890,6 +902,8 @@ def play(t=0.2):
                 g = False
             elif a in listno:
                 g = False
+            else:
+                PrettyUI.invalid_ans()
 
     if b :
         print("Loading...")
@@ -915,7 +929,7 @@ def play(t=0.2):
             save_per_to_file(per)
 
     if per.alive <1:
-        print("/"+"=-"*37+"=\\")
+        print("/"+"=-"*38+"=\\")
         print("Your lvl {} {} {} died :(".format(per.lvl, per.prace, per.name))
         per.printlvl()
         Perso.printtal(per.tallist)
