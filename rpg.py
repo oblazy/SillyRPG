@@ -55,6 +55,29 @@ class PrettyUI:
         s="/╲/\\╭(•‿•)╮/\\╱\\"
         return PrettyUI.add_color(s,random.randint(124,231))
 
+    def padleft(s,n=3):
+        if type(s)!= str:
+            s=str(s)
+        a = max(0,n-len(s))
+        return " "*a +s
+
+    def box_strings(t,t2):  # Assume n lines to be diplayed on 2n+1, t is the colorless version cause...
+        # find max length:
+        m=0
+        for x in t:
+            if len(x) > m :
+                m = len(x)
+        m=m+2
+        l=["*"*(m+2)]
+        for i in range(0,len(t)):
+            if i >0:
+                l.append("*"+" "*m+"*")
+            s = m-len(t[i])
+            b = i%2
+            l.append("*"+" "*((s+b)//2)+t2[i]+" "*((s+1-b)//2)+"*")
+        l.append("*"*(m+2))
+        return l
+
 yn = "("+fg(PrettyUI.OKGreen)+"y"+fg.rs+"/"+fg(PrettyUI.Critical)+"n"+fg.rs+")"
 
 
@@ -188,7 +211,11 @@ class Perso:
 
     def welcom(self,tal):
         print ("Welcome {}. You are a young {} ready for an adventure. You have been blessed with {}. \n [{}]: {}. \n Here we go...".format(
-                self.name, self.prace, tal, self.name, Perso.deftal[tal][0]))
+                self.name, self.prace, PrettyUI.add_color(tal,PrettyUI.Talent), self.name, Perso.deftal[tal][0]))
+        print("\n"+"*"*79)
+        Perso.printlvl(self)
+        print("*"*32+PrettyUI.seqspider()+"*"*32)
+        self.fluff()
 
     def printtal(tallist):
         print("\n\tYou had the following talent{}:".format(PrettyUI.ans(len(tallist))))
@@ -212,7 +239,7 @@ class Perso:
             b+=1
             if b%3==1:
                 s+=" "+PrettyUI.add_color(Perso.minipic[self.race][b//3],PrettyUI.racecol[self.race])+"\t"
-            s+=" "+i+" "+str(self.attr[i][0])+"\t \t"
+            s+=" "+i+" "+PrettyUI.padleft(self.attr[i][0])+"\t \t"
             if b%3==0:
                 s+="\n"
         print(s)
@@ -310,12 +337,12 @@ class Perso:
         return s
 
     def printlvl(self):
-        print ("[{} ({})] {} \t \t \t \t {} ⚔  \t {} 🤸 \t 💨 {} \t 🏆 {}\n {}: {} \t  \t {}: {} \t \t {}: {} \n".format(
-                self.name, self.prace, self.nblife(), self.nbkill, self.nbdod, self.nbinit, self.nbach, PrettyUI.add_color("Max Life",PrettyUI.Life), self.maxhp, PrettyUI.add_color("Max Mana",PrettyUI.Mana), self.maxmp, PrettyUI.add_color("Gold",PrettyUI.Gold), self.gold))
+        print ("[{} ({})] {} \t \t {} ⚔     {} 🤸     {} 💨     {} 🏆\n {}: {} \t  \t {}: {} \t \t {}: {} \n".format(
+                self.name, self.prace, self.nblife(), PrettyUI.padleft(self.nbkill), PrettyUI.padleft(self.nbdod), PrettyUI.padleft(self.nbinit), PrettyUI.padleft(self.nbach), PrettyUI.add_color("Max Life",PrettyUI.Life), PrettyUI.padleft(self.maxhp), PrettyUI.add_color("Max Mana",PrettyUI.Mana), PrettyUI.padleft(self.maxmp), PrettyUI.add_color("Gold",PrettyUI.Gold), PrettyUI.padleft(self.gold)))
 
         self.printattr()
 
-        print("\tP.Dodge: {}% \t \t M.Dodge: {}% \t\tC.dodge: {}% \n\tD.Reduce: {}% \t \t 1st.Att: {}% \t \t Chance: {}%".format(self.pdodge,self.mdodge,self.pdodge*self.mdodge//10/10,self.reduce,self.fa, self.chance))
+        print("\tP.Dodge: {}% \t \t M.Dodge: {}% \t\tC.dodge: {}% \n\tD.Reduce: {}% \t \t 1st.Att: {}% \t \t Chance: {}%".format(PrettyUI.padleft(self.pdodge,4),PrettyUI.padleft(self.mdodge,4),PrettyUI.padleft(self.pdodge*self.mdodge//10/10,4),PrettyUI.padleft(self.reduce,3),PrettyUI.padleft(self.fa,4), PrettyUI.padleft(self.chance,4)))
 
     def xp2lvl(lvl):
         '''
@@ -339,9 +366,9 @@ class Perso:
         Perso.update(self)
         self.hp=self.maxhp
         os.system('cls' if os.name == 'nt' else 'clear')
-        print("\n"+"*"*30 +" Congratulations *"+"*"*29)
+        print("\n"+"*"*31 +" Congratulations *"+"*"*30)
         Perso.printlvl(self)
-        print("*"*31+PrettyUI.seqspider()+"*"*31)
+        print("*"*32+PrettyUI.seqspider()+"*"*32)
         self.fluff()
         time.sleep(1)
 
@@ -402,12 +429,13 @@ class Perso:
             self.achiev(self.lidod,"a dodging")
 
 
-
-
     def handlencounter(self):
+        print("\n")
         enclist=[self.alchemist,self.herbalist,self.healer,self.mspring,self.oracle,self.graal,self.osiris,self.blacksmith]
         a=random.choice(enclist)
         a()
+        print("\n")
+
 
     def autopot(self):
         if "lpot" in self.items and self.hp < 0.2 * self.maxhp:
@@ -449,28 +477,31 @@ class Perso:
 
     def fluff(self):
         s=""
-        box="*"*78
+        box="*"*79
+        if self.lvl == 1:
+            s+=("\t It is a peaceful day, in Squirelia 🐿️")
+            s+="\n"+box
         if self.lvl == 6:
-            s+=("An invading {} army is coming from the {}, brace yourself".format(Perso.prace(random.choice(Perso.listrac)),random.choice(Perso.listcard)))
+            s+=("\t An invading {} army is coming from the {}, brace yourself".format(Perso.prace(random.choice(Perso.listrac)),random.choice(Perso.listcard)))
             s+="\n"+box
         elif self.lvl == 12:
-            s+=("The army is gone, some spooky monsters are coming your way")
+            s+=("\t \t The army is gone, some spooky monsters are coming your way")
             s+="\n"+box
         elif self.lvl == 18:
-            s+=("Whaaaat? They are now coming from space?")
+            s+=("\t \t \t Whaaaat? They are now coming from space?")
             s+="\n"+box
         elif self.lvl == 22:
-            s+=("Nagas, why does it have to be Nagas?")
+            s+=("\t \t \t Nagas, why does it have to be Nagas?")
             s+="\n"+box
         elif self.lvl == 24:
-            s+=("Void enemies? I should have stayed in bed...")
+            s+=("\t \t \t Void enemies? I should have stayed in bed...")
             s+="\n"+box
         print(s)
 
     def herbalist(self):
           price = 200
           price,race = self.reduc(price)
-          print("You encounter {} {} herbalist".format(random.choice(listshop),Perso.prace(race)))
+          print("\t You encounter {} {} herbalist".format(random.choice(listshop),Perso.prace(race)))
           if "lpot" in self.items:
               print("Sadly, you already carry a "+PrettyUI.add_color("Life",PrettyUI.Life)+" potion "+PrettyUI.add_color("❤",PrettyUI.Life)+", they cannot sell you a new one")
           elif self.gold < price:
@@ -478,13 +509,16 @@ class Perso:
           else:
               b=0
               while b<1:
-                  stra=PrettyUI.add_color("  .-|",PrettyUI.Life)+"\n"
-                  stra+=PrettyUI.add_color(".-'-'-. ",PrettyUI.Life)+"                      Do you want to buy a \n"
-                  stra+=PrettyUI.add_color(":-...-: ",PrettyUI.Life)+"\n"
-                  stra+=PrettyUI.add_color("|;    |   ",PrettyUI.Life)+"                        "+PrettyUI.add_color("Life",PrettyUI.Life)+" potion "+PrettyUI.add_color("❤",PrettyUI.Life)+"\n"
-                  stra+=PrettyUI.add_color("|;:   |   ",PrettyUI.Life)+"\n"
-                  stra+=PrettyUI.add_color("|;:.._|   ",PrettyUI.Life)+"                    for "+str(price)+" "+PrettyUI.add_color("Gold",PrettyUI.Gold)+" "+ yn+"? "+"\n"
-                  stra+=PrettyUI.add_color("`-...-'  ",PrettyUI.Life)+"\n"
+                  tab1 =["Do you want to buy a", "Life potion ❤","for "+str(price)+" Gold (y/n)?"]
+                  tab  =["Do you want to buy a", PrettyUI.add_color("Life",PrettyUI.Life)+" potion "+PrettyUI.add_color("❤",PrettyUI.Life),"for "+str(price)+" "+PrettyUI.add_color("Gold",PrettyUI.Gold)+" "+ yn+"?"]
+                  ltabl=PrettyUI.box_strings(tab1,tab)
+                  stra=PrettyUI.add_color("   .-|   ",PrettyUI.Life)+"\t"*3+ltabl[0]+"\n"
+                  stra+=PrettyUI.add_color(" .-'-'-. ",PrettyUI.Life)+"\t"*3+ltabl[1]+"\n"
+                  stra+=PrettyUI.add_color(" :-...-: ",PrettyUI.Life)+"\t"*3+ltabl[2]+"\n"
+                  stra+=PrettyUI.add_color(" |;    |   ",PrettyUI.Life)+"\t"*3+ltabl[3]+"\n"
+                  stra+=PrettyUI.add_color(" |;:   |   ",PrettyUI.Life)+"\t"*3+ltabl[4]+"\n"
+                  stra+=PrettyUI.add_color(" |;:.._|   ",PrettyUI.Life)+"\t"*3+ltabl[5]+"\n"
+                  stra+=PrettyUI.add_color(" `-...-'  ",PrettyUI.Life)+"\t"*3+ltabl[6]+"\n"
                   a=input(stra)
                   if a in listyes:
                       self.gold-=price
@@ -500,7 +534,7 @@ class Perso:
     def alchemist(self):
            price = 150
            price,race = self.reduc(price)
-           print("You encounter {} {} alchemist".format(random.choice(listshop),Perso.prace(race)))
+           print("\t You encounter {} {} alchemist".format(random.choice(listshop),Perso.prace(race)))
            if "mpot" in self.items:
                print("Sadly, you already carry a "+PrettyUI.add_color("Mana",PrettyUI.Mana)+" potion "+PrettyUI.add_color("✿",PrettyUI.Mana)+", they cannot sell you a new one")
            elif self.gold < price:
@@ -508,13 +542,16 @@ class Perso:
            else:
                b=0
                while b<1:
-                   stra=PrettyUI.add_color("  .-|",PrettyUI.Mana)+"\n"
-                   stra+=PrettyUI.add_color(".-'-'-. ",PrettyUI.Mana)+"                      Do you want to buy a \n"
-                   stra+=PrettyUI.add_color(":-...-: ",PrettyUI.Mana)+"\n"
-                   stra+=PrettyUI.add_color("|;    |   ",PrettyUI.Mana)+"                        "+PrettyUI.add_color("Mana",PrettyUI.Mana)+" potion "+PrettyUI.add_color("✿",PrettyUI.Mana)+"\n"
-                   stra+=PrettyUI.add_color("|;:   |   ",PrettyUI.Mana)+"\n"
-                   stra+=PrettyUI.add_color("|;:.._|   ",PrettyUI.Mana)+"                    for "+str(price)+" "+PrettyUI.add_color("Gold",PrettyUI.Gold)+" "+ yn+"? "+"\n"
-                   stra+=PrettyUI.add_color("`-...-'  ",PrettyUI.Mana)+"\n"
+                   tab1 =["Do you want to buy a", "Mana potion ✿","for "+str(price)+" Gold (y/n)?"]
+                   tab  =["Do you want to buy a", PrettyUI.add_color("Mana",PrettyUI.Mana)+" potion "+PrettyUI.add_color("✿",PrettyUI.Mana),"for "+str(price)+" "+PrettyUI.add_color("Gold",PrettyUI.Gold)+" "+ yn+"?"]
+                   ltabl=PrettyUI.box_strings(tab1,tab)
+                   stra=PrettyUI.add_color("   .-|   ",PrettyUI.Mana)+"\t"*3+ltabl[0]+"\n"
+                   stra+=PrettyUI.add_color(" .-'-'-. ",PrettyUI.Mana)+"\t"*3+ltabl[1]+"\n"
+                   stra+=PrettyUI.add_color(" :-...-: ",PrettyUI.Mana)+"\t"*3+ltabl[2]+"\n"
+                   stra+=PrettyUI.add_color(" |;    |   ",PrettyUI.Mana)+"\t"*3+ltabl[3]+"\n"
+                   stra+=PrettyUI.add_color(" |;:   |   ",PrettyUI.Mana)+"\t"*3+ltabl[4]+"\n"
+                   stra+=PrettyUI.add_color(" |;:.._|   ",PrettyUI.Mana)+"\t"*3+ltabl[5]+"\n"
+                   stra+=PrettyUI.add_color(" `-...-'  ",PrettyUI.Mana)+"\t"*3+ltabl[6]+"\n"
                    a=input(stra)
                    if a in listyes:
                        self.gold-=price
@@ -530,7 +567,7 @@ class Perso:
     def healer(self):
            price = 150
            price,race = self.reduc(price)
-           print("You encounter {} {} healer".format(random.choice(listshop),Perso.prace(race)))
+           print("\t You encounter {} {} healer".format(random.choice(listshop),Perso.prace(race)))
            if self.hp >= self.maxhp:
                print("You are already at full "+PrettyUI.add_color("Life",PrettyUI.Life)+", you don't need their help")
            elif self.gold < price:
@@ -538,7 +575,17 @@ class Perso:
            else:
                b=0
                while b<1:
-                   a=input("Do you want to be healed back to full "+PrettyUI.add_color("Life",PrettyUI.Life)+" for "+str(price)+" "+PrettyUI.add_color("Gold",PrettyUI.Gold)+" "+yn+"? ")
+                   tab1 =["Do you want to be healed back", "to full Life","for "+str(price)+" Gold (y/n)?"]
+                   tab  =["Do you want to be healed back", "to full "+PrettyUI.add_color("Life",PrettyUI.Life),"for "+str(price)+" "+PrettyUI.add_color("Gold",PrettyUI.Gold)+" "+ yn+"?"]
+                   ltabl=PrettyUI.box_strings(tab1,tab)
+                   stra=PrettyUI.add_color("   ____(_",PrettyUI.Life)+"\t"*3+ltabl[0]+"\n"
+                   stra+=PrettyUI.add_color("   |____|",PrettyUI.Life)+"\t"*3+ltabl[1]+"\n"
+                   stra+=PrettyUI.add_color("   |  ☥ |",PrettyUI.Life)+"\t"*3+ltabl[2]+"\n"
+                   stra+=PrettyUI.add_color("    \\__/  ",PrettyUI.Life)+"\t"*3+ltabl[3]+"\n"
+                   stra+=" ========== "+"\t"*3+ltabl[4]+"\n"
+                   stra+="   / () \   "+"\t"*3+ltabl[5]+"\n"
+                   stra+="  /  ||  \  "+"\t"*3+ltabl[6]+"\n"
+                   a = input(stra)
                    if a in listyes:
                        self.gold-=price
                        self.hp=self.maxhp
@@ -551,19 +598,22 @@ class Perso:
                        print("That's not a valid answer, please remove the arrow from your ear")
 
     def mspring(self):
-            print("You encounter a magic spring")
+            print("\t You encounter a magic spring")
             if self.mp >= self.maxmp:
                 print("Sadly, you are already at Max "+PrettyUI.add_color("Mana",PrettyUI.Mana)+", the spring is useless")
             else:
                 b=0
                 while b<1:
-                    stra=PrettyUI.add_color("  .'''.'.'''.",PrettyUI.Mana)+"\n"
-                    stra+=PrettyUI.add_color(" ' .''.'.''. '",PrettyUI.Mana)+"             Do you want to recover "+"\n"
-                    stra+=PrettyUI.add_color("   . . : . .",PrettyUI.Mana)+"\n"
-                    stra+=PrettyUI.add_color(" _'___':'___'_                      Mana",PrettyUI.Mana)+"\n"
-                    stra+="(_____________)"+"\n"
-                    stra+="    _)   (_                from the spring "+yn+"? "+"\n"
-                    stra+="   (_______)"+"\n"
+                    tab1 =["Do you want to recover", "Mana","from the spring (y/n)?"]
+                    tab  =["Do you want to recover", PrettyUI.add_color("Mana",PrettyUI.Mana),"from the spring "+yn+"?"]
+                    ltabl=PrettyUI.box_strings(tab1,tab)
+                    stra=PrettyUI.add_color("   .'''.'.'''.  ",PrettyUI.Mana)+"\t"*3+ltabl[0]+"\n"
+                    stra+=PrettyUI.add_color("  ' .''.'.''. ' ",PrettyUI.Mana)+"\t"*3+ltabl[1]+"\n"
+                    stra+=PrettyUI.add_color("    . . : . .   ",PrettyUI.Mana)+"\t"*3+ltabl[2]+"\n"
+                    stra+=PrettyUI.add_color("  _'___':'___'_ ",PrettyUI.Mana)+"\t"*3+ltabl[3]+"\n"
+                    stra+=" (_____________)"+"\t"*3+ltabl[4]+"\n"
+                    stra+="     _)   (_    "+"\t"*3+ltabl[5]+"\n"
+                    stra+="    (_______)   "+"\t"*3+ltabl[6]+"\n"
                     a=input(stra)
                     if a in listyes:
                         self.mp=self.maxmp
@@ -576,23 +626,27 @@ class Perso:
                         print("That's not a valid answer, please remove the arrow from your ear")
 
     def osiris(self):
-                print("You encounter a mystical god")
-                if self.gold < 2500:
+                print("\t You encounter a mystical god")
+                price = 2500
+                if self.gold < price:
                     print("Sadly, you don't have enough "+PrettyUI.add_color("Gold",PrettyUI.Gold)+", for their service")
                 else:
                     b=0
                     while b<1:
-                        stra=PrettyUI.add_color(".d88b.",PrettyUI.Gold)+"\n"
-                        stra+=PrettyUI.add_color("88  88",PrettyUI.Gold)+"                          Do you want to buy\n"
-                        stra+=PrettyUI.add_color("'8bd8'",PrettyUI.Gold)+"\n"
-                        stra+=PrettyUI.add_color(" '88'",PrettyUI.Gold)+"                           to buy an "+PrettyUI.add_color("Ankh ☥",PrettyUI.Gold)+"\n"
-                        stra+=PrettyUI.add_color("o8888o",PrettyUI.Gold)+"\n"
-                        stra+=PrettyUI.add_color("  88",PrettyUI.Gold)+"                            for 2500 "+PrettyUI.add_color("Gold",PrettyUI.Gold)+" "+yn+"?\n"
-                        stra+=PrettyUI.add_color(" d88b",PrettyUI.Gold)+"\n"
+                        tab1 =["Do you want to buy", "to buy an Ankh ☥","for "+str(price)+" Gold (y/n)?"]
+                        tab  =["Do you want to buy", "to buy an "+PrettyUI.add_color("Ankh ☥",PrettyUI.Gold),"for "+str(price)+" "+PrettyUI.add_color("Gold",PrettyUI.Gold)+" "+ yn+"?"]
+                        ltabl=PrettyUI.box_strings(tab1,tab)
+                        stra=PrettyUI.add_color(" .d88b. ",PrettyUI.Gold)+"\t"*3+ltabl[0]+"\n"
+                        stra+=PrettyUI.add_color(" 88  88 ",PrettyUI.Gold)+"\t"*3+ltabl[1]+"\n"
+                        stra+=PrettyUI.add_color(" '8bd8' ",PrettyUI.Gold)+"\t"*3+ltabl[2]+"\n"
+                        stra+=PrettyUI.add_color("  '88'  ",PrettyUI.Gold)+"\t"*3+ltabl[3]+"\n"
+                        stra+=PrettyUI.add_color(" o8888o ",PrettyUI.Gold)+"\t"*3+ltabl[4]+"\n"
+                        stra+=PrettyUI.add_color("   88   ",PrettyUI.Gold)+"\t"*3+ltabl[5]+"\n"
+                        stra+=PrettyUI.add_color("  d88b  ",PrettyUI.Gold)+"\t"*3+ltabl[6]+"\n"
                         a = input(stra)
                         if a in listyes:
-                            self.alive+=1
-                            self.gold -= 2500
+                            self.alive+= 1
+                            self.gold -= price
                             print("Here it is. Don't worry, i'll see you later anyway!")
                             b=1
                         elif a in listno:
@@ -604,7 +658,7 @@ class Perso:
     def oracle(self):
           price = 2200
           price,race = self.reduc(price)
-          print("You encounter {} {} oracle".format(random.choice(listshop),Perso.prace(race)))
+          print("\t You encounter {} {} oracle".format(random.choice(listshop),Perso.prace(race)))
           if  len(Perso.listtal) ==0:
               print("You have nothing new to learn")
           elif self.gold < price:
@@ -612,13 +666,16 @@ class Perso:
           else:
                     b=0
                     while b<1:
-                        stra=PrettyUI.add_color("     ,,,,",PrettyUI.Talent)+"\n"
-                        stra+=PrettyUI.add_color("  ,########,",PrettyUI.Talent)+"                       Do you want to buy a new random"+"\n"
-                        stra+=PrettyUI.add_color(" ############",PrettyUI.Talent)+"\n"
-                        stra+=PrettyUI.add_color("|############|",PrettyUI.Talent)+"                                   "+PrettyUI.add_color("Talent",PrettyUI.Talent)+"\n"
-                        stra+=PrettyUI.add_color(" ############",PrettyUI.Talent)+"\n"
-                        stra+=PrettyUI.add_color('  "########"',PrettyUI.Talent)+"                               for "+str(price)+" "+PrettyUI.add_color("Gold",PrettyUI.Gold)+" "+yn+"?\n"
-                        stra+=PrettyUI.add_color('     """"',PrettyUI.Talent)+"\n"
+                        tab1 =["Do you want to buy", "a new random Talent","for "+str(price)+" Gold (y/n)?"]
+                        tab  =["Do you want to buy", "a new random "+PrettyUI.add_color("Talent",PrettyUI.Talent),"for "+str(price)+" "+PrettyUI.add_color("Gold",PrettyUI.Gold)+" "+ yn+"?"]
+                        ltabl=PrettyUI.box_strings(tab1,tab)
+                        stra=PrettyUI.add_color("      ,,,,     ",PrettyUI.Talent)+"\t"*3+ltabl[0]+"\n"
+                        stra+=PrettyUI.add_color("   ,########,  ",PrettyUI.Talent)+"\t"*3+ltabl[1]+"\n"
+                        stra+=PrettyUI.add_color("  ############ ",PrettyUI.Talent)+"\t"*3+ltabl[2]+"\n"
+                        stra+=PrettyUI.add_color(" |############|",PrettyUI.Talent)+"\t"*3+ltabl[3]+"\n"
+                        stra+=PrettyUI.add_color("  ############ ",PrettyUI.Talent)+"\t"*3+ltabl[4]+"\n"
+                        stra+=PrettyUI.add_color('   "########"  ',PrettyUI.Talent)+"\t"*3+ltabl[5]+"\n"
+                        stra+=PrettyUI.add_color('      """"     ',PrettyUI.Talent)+"\t"*3+ltabl[6]+"\n"
                         a=input(stra)
                         if a in listyes:
                             tal=random.choice(Perso.listtal)
@@ -635,7 +692,7 @@ class Perso:
     def blacksmith(self):
           price = 1600
           price,race = self.reduc(price)
-          print("You encounter {} {} blascksmith".format(random.choice(listshop),Perso.prace(race)))
+          print("\t You encounter {} {} blascksmith".format(random.choice(listshop),Perso.prace(race)))
           if  len(Perso.liststuff) ==0:
               print("You have nothing new to buy")
           elif self.gold < price:
@@ -643,11 +700,16 @@ class Perso:
           else:
                     b=0
                     while b<1:
-                        stra=PrettyUI.add_color(".-------..___",PrettyUI.Item)+"                       Do you want to buy a new random"+"\n"
-                        stra+=PrettyUI.add_color("'-._     :_.-'",PrettyUI.Item)+"\n"
-                        stra+=PrettyUI.add_color(" .- ) _ ( --.",PrettyUI.Item)+"                                   "+PrettyUI.add_color("Item",PrettyUI.Item)+"\n"
-                        stra+=":  "+PrettyUI.add_color("'-' '-'",PrettyUI.Item)+"  ;.\n"
-                        stra+=" '-.._____.-'  "+"                          for "+str(price)+" "+PrettyUI.add_color("Gold",PrettyUI.Gold)+" "+yn+"?\n"
+                        tab1 =["Do you want to buy", "a new random Item","for "+str(price)+" Gold (y/n)?"]
+                        tab  =["Do you want to buy", "a new random "+PrettyUI.add_color("Item",PrettyUI.Item),"for "+str(price)+" "+PrettyUI.add_color("Gold",PrettyUI.Gold)+" "+ yn+"?"]
+                        ltabl=PrettyUI.box_strings(tab1,tab)
+                        stra=""+"\t"*5+ltabl[0]+"\n"
+                        stra+=PrettyUI.add_color(" .-------..___     ",PrettyUI.Item)+"\t"*3+ltabl[1]+"\n"
+                        stra+=PrettyUI.add_color(" '-._     :_.-'    ",PrettyUI.Item)+"\t"*3+ltabl[2]+"\n"
+                        stra+=PrettyUI.add_color("  .- ) _ ( --.     ",PrettyUI.Item)+"\t"*3+ltabl[3]+"\n"
+                        stra+=" :  "+PrettyUI.add_color("'-' '-'",PrettyUI.Item)+"   :"+"\t"*4+ltabl[4]+"\n"
+                        stra+="  '-.._____.-'  "+"\t"*3+ltabl[5]+"\n"
+                        stra+=""+"\t"*5+ltabl[6]+"\n"
                         a=input(stra)
                         if a in listyes:
                             ite=random.choice(Perso.liststuff)
@@ -662,16 +724,19 @@ class Perso:
                             print("That's not a valid answer, please remove the arrow from your ear")
 
     def graal(self):
-          print("You found the "+PrettyUI.add_color("Graal",PrettyUI.Gold)+"!!")
+          print("\t You found the "+PrettyUI.add_color("Graal",PrettyUI.Gold)+"!!")
           b=0
           while b<1:
-              stra=PrettyUI.add_color(" _..,----,.._ ",PrettyUI.Gold)+"\n"
-              stra+=PrettyUI.add_color(";'-.,____,.-';",PrettyUI.Gold)+"                             Do you want\n"
-              stra+=PrettyUI.add_color("|            |",PrettyUI.Gold)+"\n"
-              stra+=PrettyUI.add_color(")            (",PrettyUI.Gold)+"                           to try your luck\n"
-              stra+=PrettyUI.add_color(" \          / ",PrettyUI.Gold)+"\n"
-              stra+=PrettyUI.add_color("  `,.____.,'  ",PrettyUI.Gold)+"                          and grab it "+yn+"?\n"
-              stra+=PrettyUI.add_color("   '------'   ",PrettyUI.Gold)+"\n"
+              tab1 =["Do you want", "to try your luck","and grab it (y/n)?"]
+              tab  =["Do you want", "to try your luck","and grab it "+yn+"?"]
+              ltabl=PrettyUI.box_strings(tab1,tab)
+              stra=PrettyUI.add_color("  _..,----,.._ ",PrettyUI.Gold)+"\t"*3+ltabl[0]+"\n"
+              stra+=PrettyUI.add_color(" ;'-.,____,.-';",PrettyUI.Gold)+"\t"*3+ltabl[1]+"\n"
+              stra+=PrettyUI.add_color(" |            |",PrettyUI.Gold)+"\t"*3+ltabl[2]+"\n"
+              stra+=PrettyUI.add_color(" )            (",PrettyUI.Gold)+"\t"*3+ltabl[3]+"\n"
+              stra+=PrettyUI.add_color("  \          / ",PrettyUI.Gold)+"\t"*3+ltabl[4]+"\n"
+              stra+=PrettyUI.add_color("   `,.____.,'  ",PrettyUI.Gold)+"\t"*3+ltabl[5]+"\n"
+              stra+=PrettyUI.add_color("    '------'   ",PrettyUI.Gold)+"\t"*3+ltabl[6]+"\n"
               a = input(stra)
               if a in listyes:
                   res = self.roll(self.chance)
@@ -761,36 +826,36 @@ def title():
    col = PrettyUI.racecol[random.choice(Perso.listrac)]
    os.system('cls' if os.name == 'nt' else 'clear')
    eye = PrettyUI.add_color("\"",PrettyUI.Gold)
-   str =("  ____              "
+   str =("   ____              "
     "    _       _      _"
     "_   __       ____   "
     "   ____      ____   "
-    "\r\n"
+    "\r\n "
     " / __"+eye+"| u      ___ "
     "    |"+eye+"|     |"+eye+"|   "
     "  \\ \\ / /    U |  "
     "_"+eye+"\\ u U|  _"+eye+"\\ uU"
-    " /"+eye+"___|u \r\n"
+    " /"+eye+"___|u \r\n "
     "<\\___ \\/      |_"+eye+""
     "_|  U | | u U | | u "
     "   \\ V /      \\| |"
     "_) |/ \\| |_) |/\\| "
-    "|  _ / \r\n"
+    "|  _ / \r\n "
     " u___) |       | |  "
     "  \\| |/__ \\| |/__ "
     " U_|"+eye+"|_u      |  _ "
     "<    |  __/   | |_| "
-    "|  \r\n"
+    "|  \r\n "
     " |____/>>    U/| |\\"
     "u   |_____| |_____| "
     "  |_|        |_| \\_"
     "\\   |_|       \\___"
-    "_|  \r\n"
+    "_|  \r\n "
     "  )(  (__).-,_|___|_"
     ",-.//  \\\\  //  \\"
     "\\.-,//|(_       // "
     "  \\\\_  ||>>_     _"
-    ")(|_   \r\n"
+    ")(|_   \r\n "
     " (__)      \\_)-\' "
     "\'-(_/(_\")(\"_)(_\""
     ")(\"_)\\_) (__)     "
@@ -836,7 +901,7 @@ def play(t=0.2):
         r=Perso.get_race()
         per=Perso(n,r)
 
-    per.printlvl()
+    #per.printlvl()
     time.sleep(10*t)
 
     while (per.alive > 0):
@@ -855,7 +920,7 @@ def play(t=0.2):
         per.printlvl()
         Perso.printtal(per.tallist)
         Perso.printite(per.items)
-        print("\\"+"=-"*15+PrettyUI.seqspider()+"-"+"=-"*14+"=/")
+        print("\\"+"=-"*15+PrettyUI.seqspider()+"-"+"=-"*15+"=/")
         if os.path.isfile('./Silly_save.sav'):
             os.remove("./Silly_save.sav")
     else:
@@ -863,7 +928,6 @@ def play(t=0.2):
 
 t=0.1
 
-price=4399
 if len(sys.argv) > 1:
     t=int(sys.argv[1])/10
 play(t)
