@@ -6,6 +6,8 @@ This does not aim to be anything wonderful
 
 import random
 import time
+import pickle
+import os
 
 listyes = ["y","Y","O","o","yes","YES","oui","OUI","j","J","ja","JA"]
 listno = ["n","N","no","NO","no","NO","nein","NEIN"]
@@ -341,7 +343,7 @@ class Perso:
         self.hp -= int(dam * (1-self.reduce/100))
         if self.hp<=0:
             print ("Oh no, your character took lethal damage from the "+name+" :(")
-            self.alive-=1
+            self.alive -=1
             if self.alive>0:
                 self.hp = self.maxhp//2
 
@@ -358,46 +360,55 @@ class Perso:
         name, xp, dam, loot, dod = self.fight()
         self.newxp(xp)
         self.nbkill+=1
-        if self.nbkill == self.lifig[0]:
-            self.attr[random.choice(Perso.listattr)][0] += 1
-            self.achiev(self.lifig,"a slaying")
+        self.gold+= loot
         if not(dod):                                            # If not dodged
             if not(self.roll(self.fa,100+self.lvl)):            # If no sneak attack
                 self.damage(dam,name)
                 if self.alive > 0:
                     print("You fought "+random.choice(listmean)+" "+name+" and won "+str(xp)+" xp, took "+PrettyUI.givemeans(dam,"damage")+" and earned "+PrettyUI.givemeans(loot, "gold")+"!")
+                else:
+                    self.gold   -=1
+                    self.nbkill -=1
+                    return
             else:
                  print("You sneaked on "+random.choice(listmean)+" "+name+" and won "+str(xp)+" xp, you also earned "+PrettyUI.givemeans(loot, "gold")+"!")
                  self.nbinit += 1
-                 if self.nbinit == self.lifsa[0]:
-                     self.bfa += 0.75
-                     self.achiev(self.lifsa,"a celerity")
-
         else:
             print("You fought a "+name+" and won "+str(xp)+" xp, avoided damage and earned "+str(loot)+" golds!")
             self.nbdod += 1
-            if self.nbdod == self.lidod[0]:
-                self.bpd += 0.5
-                self.bmd += 0.5
-                self.achiev(self.lidod,"a dodging")
+        print(self)
 
-        if self.alive >0:
-            self.gold+= loot
-            if self.nbkill % 17 == 0:
-                    enclist=[self.alchemist,self.herbalist,self.healer,self.mspring,self.oracle,self.graal,self.osiris,self.blacksmith]
-                    a=random.choice(enclist)
-                    a()
+    def checkachiev(self):
+        if self.nbinit == self.lifsa[0]:
+            self.bfa += 0.75
+            self.achiev(self.lifsa,"a celerity")
+        if self.nbkill == self.lifig[0]:
+            self.attr[random.choice(Perso.listattr)][0] += 1
+            self.achiev(self.lifig,"a slaying")
+        if self.nbdod == self.lidod[0]:
+            self.bpd += 0.5
+            self.bmd += 0.5
+            self.achiev(self.lidod,"a dodging")
 
-            if "lpot" in self.items and self.hp < 0.2 * self.maxhp:
-                    print("Auto-using a \33[38;2;210;236;134mLife\33[0m potion")
-                    self.hp += int(0.4*self.maxhp)
-                    self.items.remove("lpot")
 
-            if "mpot" in self.items and self.mp < 0.2 * self.maxmp:
-                    print("Auto-using a \33[38;2;137;177;210mMana\33[0m potion")
-                    self.mp += int(0.4*self.maxmp)
-                    self.items.remove("mpot")
-            print(self)
+
+
+    def handlencounter(self):
+        enclist=[self.alchemist,self.herbalist,self.healer,self.mspring,self.oracle,self.graal,self.osiris,self.blacksmith]
+        a=random.choice(enclist)
+        a()
+
+    def autopot(self):
+        if "lpot" in self.items and self.hp < 0.2 * self.maxhp:
+                print("Auto-using a \33[38;2;210;236;134mLife\33[0m potion")
+                self.hp += int(0.4*self.maxhp)
+                self.items.remove("lpot")
+
+        if "mpot" in self.items and self.mp < 0.2 * self.maxmp:
+                print("Auto-using a \33[38;2;137;177;210mMana\33[0m potion")
+                self.mp += int(0.4*self.maxmp)
+                self.items.remove("mpot")
+
 
 
     def fight(self):
@@ -730,18 +741,51 @@ listmean = ["a mean","a wild","an horrible","a scary","a nasty","a cryptic","a b
 listshop = ["a traveling","a lost","a friendly","an exhausted","a curious","a clumsy","an interested","an enigmatic"]
 
 
+def save_per_to_file(self):
+    with open('Silly_save.sav', 'wb') as save_file:
+        pickle.dump(self, save_file)
+
+def load_per_from_file():
+    with open('Silly_save.sav', 'rb') as load_file:
+        per = pickle.load(load_file)
+        return per
+
 def play(t=0.2):
     title()
-    n=input("Please, enter your character name: ")
-    r=Perso.get_race()
-    per=Perso(n,r)
+    b = False
+    if os.path.isfile('./Silly_save.sav'):
+        g = True
+        while g:
+            a = input("Save file detected do you want to load it (y/n)? ")
+            if a in listyes:
+                b = True
+                g = False
+            elif a in listno:
+                g =  False
+
+    if b :
+        print("Loading...")
+        global per
+        per = load_per_from_file()
+
+    else :
+        n=input("Please, enter your character name: ")
+        r=Perso.get_race()
+        per=Perso(n,r)
+
     per.printlvl()
     time.sleep(10*t)
-#    b='y'
-    while (per.alive >0):
+
+    while (per.alive > 0):
         per.handlefight()
+        if per.alive > 0 and per.roll(per.nbkill % 17,20):
+            per.handlencounter()
+        per.checkachiev()
+        per.autopot()
         time.sleep(t)
-    per.nbkill -=1
+        if per.nbkill % 23 == 0:
+            save_per_to_file(per)
+
     if per.alive <1:
         print("/"+"=-"*37+"=\\")
         print("Your lvl {} {} {} died :(".format(per.lvl, per.prace, per.name))
@@ -749,6 +793,8 @@ def play(t=0.2):
         Perso.printtal(per.tallist)
         Perso.printite(per.items)
         print("\\"+"=-"*15+PrettyUI.seqspider()+"-"+"=-"*14+"=/")
+        if os.path.isfile('./Silly_save.sav'):
+            os.remove("./Silly_save.sav")
     else:
         print("You stopped your adventure, good bye.")
 
