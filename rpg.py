@@ -36,7 +36,8 @@ class PrettyUI:
     XP       = 173
 
     def add_color(msg,fore):
-        msg=str(msg)
+        if type(msg) != str:
+            msg=str(msg)
         mat=""+ fg(fore) + msg + fg.rs
         return (mat)
 
@@ -541,7 +542,14 @@ class Perso:
             else:
                 b=0
                 while b<1:
-                    a=input("Do you want to recoved "+PrettyUI.add_color("Mana",PrettyUI.Mana)+" from the spring "+yn+"? ")
+                    stra=PrettyUI.add_color("  .'''.'.'''.",PrettyUI.Mana)+"\n"
+                    stra+=PrettyUI.add_color(" ' .''.'.''. '",PrettyUI.Mana)+"             Do you want to recover "+"\n"
+                    stra+=PrettyUI.add_color("   . . : . .",PrettyUI.Mana)+"\n"
+                    stra+=PrettyUI.add_color(" _'___':'___'_                      Mana",PrettyUI.Mana)+"\n"
+                    stra+="(_____________)"+"\n"
+                    stra+="    _)   (_                from the spring "+yn+"? "+"\n"
+                    stra+="   (_______)"+"\n"
+                    a=input(stra)
                     if a in listyes:
                         self.mp=self.maxmp
                         print("Aaaah, what a delight!")
@@ -582,7 +590,14 @@ class Perso:
           else:
                     b=0
                     while b<1:
-                        a=input("Do you want to buy a new random "+PrettyUI.add_color("Talent",PrettyUI.Talent)+" from them for "+str(price)+" "+PrettyUI.add_color("Gold",PrettyUI.Gold)+" "+yn+"? ")
+                        stra=PrettyUI.add_color("     ,,,,",PrettyUI.Talent)+"\n"
+                        stra+=PrettyUI.add_color("  ,########,",PrettyUI.Talent)+"                       Do you want to buy a new random"+"\n"
+                        stra+=PrettyUI.add_color(" ############",PrettyUI.Talent)+"\n"
+                        stra+=PrettyUI.add_color("|############|",PrettyUI.Talent)+"                                   "+PrettyUI.add_color("Talent",PrettyUI.Talent)+"\n"
+                        stra+=PrettyUI.add_color(" ############",PrettyUI.Talent)+"\n"
+                        stra+=PrettyUI.add_color('  "########"',PrettyUI.Talent)+"                               for "+str(price)+" "+PrettyUI.add_color("Gold",PrettyUI.Gold)+" "+yn+"?\n"
+                        stra+=PrettyUI.add_color('     """"',PrettyUI.Talent)+"\n"
+                        a=input(stra)
                         if a in listyes:
                             tal=random.choice(Perso.listtal)
                             self.newtal(tal,False)
@@ -606,7 +621,12 @@ class Perso:
           else:
                     b=0
                     while b<1:
-                        a=input("Do you want to buy a new random "+PrettyUI.add_color("Talent",PrettyUI.Item)+" from them for "+str(price)+" "+PrettyUI.add_color("Gold",PrettyUI.Gold)+" "+yn+"? ")
+                        stra=PrettyUI.add_color(".-------..___",PrettyUI.Item)+"                       Do you want to buy a new random"+"\n"
+                        stra+=PrettyUI.add_color("'-._     :_.-'",PrettyUI.Item)+"\n"
+                        stra+=PrettyUI.add_color(" .- ) _ ( --.",PrettyUI.Item)+"                                   "+PrettyUI.add_color("Item",PrettyUI.Item)+"\n"
+                        stra+=":  "+PrettyUI.add_color("'-' '-'",PrettyUI.Item)+"  ;.\n"
+                        stra+=" '-.._____.-'  "+"                          for "+str(price)+" "+PrettyUI.add_color("Gold",PrettyUI.Gold)+" "+yn+"?\n"
+                        a=input(stra)
                         if a in listyes:
                             ite=random.choice(Perso.liststuff)
                             self.newitem(ite,False)
@@ -813,6 +833,10 @@ def play(t=0.2):
         print("You stopped your adventure, good bye.")
 
 t=0.1
+
+price=4399
+
+
 
 if len(sys.argv) > 1:
     t=int(sys.argv[1])/10
