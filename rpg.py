@@ -709,42 +709,47 @@ class Mon:
         return monstrinou
 
 def title():
-   str = ("  ____              "
-   "    _       _      _"
-   "_   __       ____   "
-   "   ____      ____   "
-   "\r\n"
-   " / __\"| u      ___ "
-   "    |\"|     |\"|   "
-   "  \\ \\ / /    U |  "
-   "_\"\\ u U|  _\"\\ uU"
-   " /\"___|u \r\n"
-   "<\\___ \\/      |_\""
-   "_|  U | | u U | | u "
-   "   \\ V /      \\| |"
-   "_) |/ \\| |_) |/\\| "
-   "|  _ / \r\n"
-   " u___) |       | |  "
-   "  \\| |/__ \\| |/__ "
-   " U_|\"|_u      |  _ "
-   "<    |  __/   | |_| "
-   "|  \r\n"
-   " |____/>>    U/| |\\"
-   "u   |_____| |_____| "
-   "  |_|        |_| \\_"
-   "\\   |_|       \\___"
-   "_|  \r\n"
-   "  )(  (__).-,_|___|_"
-   ",-.//  \\\\  //  \\"
-   "\\.-,//|(_       // "
-   "  \\\\_  ||>>_     _"
-   ")(|_   \r\n"
-   " (__)      \\_)-\' "
-   "\'-(_/(_\")(\"_)(_\""
-   ")(\"_)\\_) (__)     "
-   "(__)  (__)(__)__)   "
-   "(__)__) ")
+   col = PrettyUI.racecol[random.choice(Perso.listrac)]
+   os.system('cls' if os.name == 'nt' else 'clear')
+   eye = PrettyUI.add_color("\"",PrettyUI.Gold)
+   str =("  ____              "
+    "    _       _      _"
+    "_   __       ____   "
+    "   ____      ____   "
+    "\r\n"
+    " / __"+eye+"| u      ___ "
+    "    |"+eye+"|     |"+eye+"|   "
+    "  \\ \\ / /    U |  "
+    "_"+eye+"\\ u U|  _"+eye+"\\ uU"
+    " /"+eye+"___|u \r\n"
+    "<\\___ \\/      |_"+eye+""
+    "_|  U | | u U | | u "
+    "   \\ V /      \\| |"
+    "_) |/ \\| |_) |/\\| "
+    "|  _ / \r\n"
+    " u___) |       | |  "
+    "  \\| |/__ \\| |/__ "
+    " U_|"+eye+"|_u      |  _ "
+    "<    |  __/   | |_| "
+    "|  \r\n"
+    " |____/>>    U/| |\\"
+    "u   |_____| |_____| "
+    "  |_|        |_| \\_"
+    "\\   |_|       \\___"
+    "_|  \r\n"
+    "  )(  (__).-,_|___|_"
+    ",-.//  \\\\  //  \\"
+    "\\.-,//|(_       // "
+    "  \\\\_  ||>>_     _"
+    ")(|_   \r\n"
+    " (__)      \\_)-\' "
+    "\'-(_/(_\")(\"_)(_\""
+    ")(\"_)\\_) (__)     "
+    "(__)  (__)(__)__)   "
+    "(__)__) "
+    "\n\n")
    print(str)
+
 
 listmean = ["a mean","a wild","an horrible","a scary","a nasty","a cryptic","a bloody","an evil","a strong","a brooding"]
 listshop = ["a traveling","a lost","a friendly","an exhausted","a curious","a clumsy","an interested","an enigmatic"]
@@ -765,7 +770,7 @@ def play(t=0.2):
     if os.path.isfile('./Silly_save.sav'):
         g = True
         while g:
-            a = input("Save file detected do you want to load it "+yn+"?"+ef.italic+"(Refusing will overwrite it)"+rs.italic)
+            a = input("Save file detected do you want to load it "+yn+"?"+ef.italic+"(Refusing will overwrite it) "+rs.italic)
             if a in listyes:
                 b = True
                 g = False
