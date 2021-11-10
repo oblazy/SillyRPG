@@ -9,8 +9,8 @@ import random
 from time import sleep
 import pickle
 import os
-import curses, curses.panel
 from sty import fg, bg, ef, rs
+
 
 listyes = ["y","Y","O","o","yes","YES","oui","OUI","j","J","ja","JA"]
 listno = ["n","N","no","NO","no","NO","nein","NEIN"]
@@ -35,6 +35,7 @@ class PrettyUI:
     Critical = (166)
     Gold     = (220)
     XP       = 173
+    SQuest    = 219
 
     def add_color(msg,fore):
         if type(msg) != str:
@@ -204,6 +205,7 @@ class Perso:
         self.lidod  = [5,10,25,50,100,250,500,1000]
         self.lifsa  = [5,10,25,50,100,250,500,1000]
         self.lifig  = [5,10,25,50,100,250,500,1000]
+        self.quest  = [-1,-1,-1]  # reward is x*lvl, given when y=0, z is type 0 monster, 1 encounter, 2 dodge
 
 
         if race=="undead":
@@ -409,6 +411,8 @@ class Perso:
 
     def handlefight(self):
         name, xp, dam, loot, dod = self.fight()
+        if self.quest[2] == 0:
+            self.quest[1] -= 1
         self.newxp(xp)
         self.nbkill+=1
         self.gold+= loot
@@ -427,6 +431,8 @@ class Perso:
         else:
             print("You fought a "+name+" and won "+str(xp)+" xp, avoided damage and earned "+str(loot)+" golds!")
             self.nbdod += 1
+            if self.quest[2] == 1:
+                self.quest[1] -= 1
         print(self)
 
     def checkachiev(self):
@@ -441,10 +447,17 @@ class Perso:
             self.bmd += 0.5
             self.achiev(self.lidod,"a dodging")
 
+    def checkquest(self,t=0.1):
+        if self.quest[1] == 0:
+            print("Congratulations, you have completed a "+Perso.quest_list[self.quest[2]]+"quest!")
+            print("Here is "+str(self.lvl*self.quest[0])+PrettyUI.add_color(" Gold",PrettyUI.Gold)+" as a reward")
+            self.quest[1] -= 1
+            sleep(10*t)
+
 
     def handlencounter(self):
         print("\n")
-        enclist=[self.alchemist,self.herbalist,self.healer,self.mspring,self.oracle,self.graal,self.osiris,self.blacksmith,self.vampireoverlord]
+        enclist=[self.alchemist,self.herbalist,self.healer,self.mspring,self.oracle,self.graal,self.osiris,self.blacksmith,self.vampireoverlord,self.scrollquest]
         a=random.choice(enclist)
         a()
         print("\n")
@@ -769,6 +782,44 @@ class Perso:
                   b=1
               else:
                   PrettyUI.invalid_ans()
+
+    quest_list=["Fighting ","Dodging ","Adventuring "]
+
+    def scrollquest(self):
+          print("\t You found a "+PrettyUI.add_color("Scroll of Quest ",PrettyUI.SQuest)+"!!")
+          if self.quest[1]>0:
+              print("\t You are already on a "+PrettyUI.add_color("Quest ",PrettyUI.SQuest)+"!!")
+              print("\t You need to go "+PrettyUI.add_color(Perso.quest_list[self.quest[2]],PrettyUI.SQuest)+str(self.quest[1])+" more times!!")
+          else:
+              r      = random.randint(0,2) # Enemies, Encounter, Dodger
+              nb     = int(1.5*random.randint(10,20))
+              reward = nb
+              if r > 1:
+                  nb = int(nb/1.8)
+                  reward = int(1.8*reward)
+              b=0
+              while b<1:
+                  tab1 =["Do you want", "to accept the quest of ",Perso.quest_list[r]+str(nb)+" times (y/n)?"]
+                  tab  =["Do you want", "to accept the "+PrettyUI.add_color("quest",PrettyUI.SQuest)+" of ",Perso.quest_list[r]+str(nb)+" times "+yn+"?"]
+                  ltabl=PrettyUI.box_strings(tab1,tab)
+                  stra=PrettyUI.add_color("  ,-----------. ",PrettyUI.SQuest)+"\t"*3+ltabl[0]+"\n"
+                  stra+=PrettyUI.add_color(" (_\\           \\",PrettyUI.SQuest)+"\t"*3+ltabl[1]+"\n"
+                  stra+=PrettyUI.add_color("    |           |",PrettyUI.SQuest)+"\t"*3+ltabl[2]+"\n"
+                  stra+=PrettyUI.add_color("    |           |",PrettyUI.SQuest)+"\t"*3+ltabl[3]+"\n"
+                  stra+=PrettyUI.add_color("    |           |",PrettyUI.SQuest)+"\t"*3+ltabl[4]+"\n"
+                  stra+=PrettyUI.add_color("   _|           |",PrettyUI.SQuest)+"\t"*3+ltabl[5]+"\n"
+                  stra+=PrettyUI.add_color("  (_/_____(*)___/",PrettyUI.SQuest)+"\t"*3+ltabl[6]+"\n"
+                  a = input(stra)
+                  if a in listyes:
+                      print("Here you go adventurer, "+PrettyUI.add_color("have fun",PrettyUI.SQuest)+"!")
+                      self.quest=[reward,nb,r]
+                      b=1
+                  elif a in listno:
+                      print("Oh not interested? Ok...")
+                      b=1
+                  else:
+                      PrettyUI.invalid_ans()
+
     def vampireoverlord(self):
         gold = 500
         print("\t You encounter a rich vampire")
@@ -940,14 +991,20 @@ def play(t=0.2):
         n=input("Please, enter your character name: ")
         r=Perso.get_race()
         per=Perso(n,r)
+    #    per.scrollquest()
     #per.printlvl()
     sleep(10*t)
 
     while (per.alive > 0):
+    #    print(per.quest)
+    #    sleep(1)
         per.handlefight()
         if per.alive > 0 and per.roll(per.nbkill % 17,20):
             per.handlencounter()
+            if per.quest[2]==2:
+                per.quest[1]-=1
         per.checkachiev()
+        per.checkquest(t)
         per.autopot()
         sleep(2*t)
         if per.nbkill % 23 == 0:
@@ -965,6 +1022,7 @@ def play(t=0.2):
     else:
         print("You stopped your adventure, good bye.")
 
+
 t=0.1
 
 
@@ -972,4 +1030,5 @@ t=0.1
 
 if len(sys.argv) > 1:
     t=int(sys.argv[1])/10
+
 play(t)
