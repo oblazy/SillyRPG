@@ -41,7 +41,7 @@ You're an adventurer in a wonderland, and are chasing monsters to find gold and 
 - [X] Let the attributes do something (in progress)
 - [ ] Cute interface (in progress... ish)
 - [ ] Weapons / Stuff ? (ish)
-- [ ] Quests
+- [X] Quests
 - [ ] Saga
 - [X] Auto saving every 23 fights (and can reload)
 - [ ] "Protection" on the savefile
