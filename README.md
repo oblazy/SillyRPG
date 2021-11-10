@@ -18,6 +18,7 @@ You're an adventurer in a wonderland, and are chasing monsters to find gold and 
 ## How to play
 
 - Launch the rpg.py file. 
+<pre> python3 rpg.py</pre>
 - (it should auto launch the function play())
 - An optinal argument exist to determine the speed of the program. 0 is the fastest, 1 is normal, more is slower
 - Watch the screen and decide your fate :)
