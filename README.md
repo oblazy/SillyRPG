@@ -33,11 +33,11 @@ You're an adventurer in a wonderland, and are chasing monsters to find gold and 
 
 ## Things to come!
 
-- [ ] Interactivity
+- [X] Interactivity
 - [X] New character races
 - [X] New monsters
 - [X] Talents
-- [ ] Let the attributes do something (in progress)
+- [X] Let the attributes do something (in progress)
 - [ ] Cute interface (in progress... ish)
 - [ ] Weapons / Stuff ? (ish)
 - [ ] Quests
