@@ -9,90 +9,13 @@ import random
 from time import sleep
 import pickle
 import os
-from sty import fg, bg, ef, rs
 
+import PrettyUI
+import Monster
 
 listyes = ["y","Y","O","o","yes","YES","oui","OUI","j","J","ja","JA"]
 listno = ["n","N","no","NO","no","NO","nein","NEIN"]
-
-class PrettyUI:
-
-    racecol   ={"human":(159),
-                "elf":(154),
-                "orc":(174),
-                "undead":(135),
-                "ent":(173),
-                "goblin":(220),
-                "wolfy":(4)
-                }
-
-    Life     = 114
-    Mana     = 38
-    Talent   = 141
-    Item     = 145
-    OKGreen  = (10)
-    Danger   = (9)
-    Critical = (166)
-    Gold     = (220)
-    XP       = 173
-    SQuest    = 219
-
-    def add_color(msg,fore):
-        if type(msg) != str:
-            msg=str(msg)
-        mat=""+ fg(fore) + msg + fg.rs
-        return (mat)
-
-    def givemeans(n,s):
-        if n>1:
-            return str(n)+" "+s+"s"
-        return str(n)+" "+s
-
-    def ans(n):
-        if n>1:
-            return "s"
-        return ""
-
-    def seqspider():
-        s="/╲/\\╭(•‿•)╮/\\╱\\"
-        return PrettyUI.add_color(s,random.randint(124,231))
-
-    def padleft(s,n=3):
-        if type(s)!= str:
-            s=str(s)
-        a = max(0,n-len(s))
-        return " "*a +s
-
-    def box_strings(t,t2):  # Assume n lines to be diplayed on 2n+1, t is the colorless version cause...
-        # find max length:
-        m=0
-        for x in t:
-            if len(x) > m :
-                m = len(x)
-        m=m+2
-        l=["*"*(m+2)]
-        for i in range(0,len(t)):
-            if i >0:
-                l.append("*"+" "*m+"*")
-            s = m-len(t[i])
-            b = i%2
-            l.append("*"+" "*((s+b)//2)+t2[i]+" "*((s+1-b)//2)+"*")
-        l.append("*"*(m+2))
-        return l
-
-    def invalid_ans():
-        s="\t 🔥 This is not a valid answer. "
-        lsilly=["Please remove the arrow from your ear and try again.",
-        "I guess some nasty gremlin ran on your keyboard.",
-        "Sometimes, you can blame your cat, but maybe not today.",
-        "Are you trying to list the error messages?",
-        "Try to type do do do do, try to type do do do do, try to type.",
-        "Take a deep breath, and try again.",
-        "What is yellow, and equivalent to the axiom of Choice? Zorn's lemma!"]
-        s+=random.choice(lsilly)+" 🔥"
-        print(s)
-
-yn = "("+fg(PrettyUI.OKGreen)+"y"+fg.rs+"/"+fg(PrettyUI.Critical)+"n"+fg.rs+")"
+yn = "("+PrettyUI.add_color("y",PrettyUI.OKGreen)+"/"+PrettyUI.add_color("n",PrettyUI.Critical)+")"
 
 
 class Perso:
@@ -477,7 +400,7 @@ class Perso:
 
 
     def fight(self):
-        strinou = Mon.pickmonster(self.lvl)
+        strinou = Monster.pickmonster(self.lvl)
         xp      = random.randint(max(0,strinou.xp-2),strinou.xp+self.lvl)
         dam     = random.randint(max(0,strinou.dam-5),strinou.dam+self.lvl)
         hit     = self.dodge(strinou.typ)
@@ -505,22 +428,22 @@ class Perso:
         s=""
         box="*"*79
         if self.lvl == 1:
-            s+=("\t It is a peaceful day, in Squirelia 🐿️")
+            s+=PrettyUI.center("It is a peaceful day, in Squirelia 🐿️")
             s+="\n"+box
         if self.lvl == 6:
             s+=("\t An invading {} army is coming from the {}, brace yourself".format(Perso.prace(random.choice(Perso.listrac)),random.choice(Perso.listcard)))
             s+="\n"+box
         elif self.lvl == 12:
-            s+=("\t \t The army is gone, some spooky monsters are coming your way")
+            s+=PrettyUI.center("The army is gone, some spooky monsters are coming your way")
             s+="\n"+box
         elif self.lvl == 18:
-            s+=("\t \t \t Whaaaat? They are now coming from space?")
+            s+=PrettyUI.center("Whaaaat? They are now coming from space?")
             s+="\n"+box
         elif self.lvl == 22:
-            s+=("\t \t \t Nagas, why does it have to be Nagas?")
+            s+=PrettyUI.center("Nagas, why does it have to be Nagas?")
             s+="\n"+box
         elif self.lvl == 24:
-            s+=("\t \t \t Void enemies? I should have stayed in bed...")
+            s+=PrettyUI.center("Void enemies? I should have stayed in bed...")
             s+="\n"+box
         print(s)
 
@@ -582,10 +505,10 @@ class Perso:
                    if a in listyes:
                        self.gold-=price
                        self.items.append("mpot")
-                       print("Thank you! Be safe!")
+                       print(PrettyUI.center("Thank you! Be safe!"))
                        b=1
                    elif a in listno:
-                       print("Oh, a bold one... I'd say you'd come back crawling but we both know you won't")
+                       print(PrettyUI.center("I understand, time is Mana!"))
                        b=1
                    else:
                        PrettyUI.invalid_ans()
@@ -615,16 +538,16 @@ class Perso:
                    if a in listyes:
                        self.gold-=price
                        self.hp=self.maxhp
-                       print("Thank you! Be safe!")
+                       print(PrettyUI.center("Thank you! Be safe!"))
                        b=1
                    elif a in listno:
-                       print("Oh, a bold one... I'd say you'd come back crawling but we both know you won't")
+                       print(PrettyUI.center("Oh, a bold one... I'd say you'd come back crawling but we both know you won't"))
                        b=1
                    else:
                        PrettyUI.invalid_ans()
 
     def mspring(self):
-            print("\t You encounter a magic spring")
+            print(PrettyUI.center("You encounter a magic spring"))
             if self.mp >= self.maxmp:
                 print("Sadly, you are already at Max "+PrettyUI.add_color("Mana",PrettyUI.Mana)+", the spring is useless")
             else:
@@ -643,16 +566,16 @@ class Perso:
                     a=input(stra)
                     if a in listyes:
                         self.mp=self.maxmp
-                        print("Aaaah, what a delight!")
+                        print(PrettyUI.center("Aaaah, what a delight!"))
                         b=1
                     elif a in listno:
-                        print("Ok, you know, there was no trap...")
+                        print(PrettyUI.center("Ok, you know, there was no trap..."))
                         b=1
                     else:
                         PrettyUI.invalid_ans()
 
     def osiris(self):
-                print("\t You encounter a mystical god")
+                print(PrettyUI.center("You encounter a mystical god"))
                 price = 2500
                 if self.gold < price:
                     print("Sadly, you don't have enough "+PrettyUI.add_color("Gold",PrettyUI.Gold)+", for their service")
@@ -673,10 +596,10 @@ class Perso:
                         if a in listyes:
                             self.alive+= 1
                             self.gold -= price
-                            print("Here it is. Don't worry, i'll see you later anyway!")
+                            print(PrettyUI.center("Here it is. Don't worry, i'll see you later anyway!"))
                             b=1
                         elif a in listno:
-                            print("I can't wait to see you again")
+                            print(PrettyUI.center("I can't wait to see you again"))
                             b=1
                         else:
                             PrettyUI.invalid_ans()
@@ -686,7 +609,7 @@ class Perso:
           price,race = self.reduc(price)
           print("\t You encounter {} {} oracle".format(random.choice(listshop),Perso.prace(race)))
           if  len(Perso.listtal) ==0:
-              print("You have nothing new to learn")
+              print(PrettyUI.center("You have nothing new to learn"))
           elif self.gold < price:
                     print("Sadly, you don't have enough "+PrettyUI.add_color("Gold",PrettyUI.Gold)+", for their service")
           else:
@@ -710,7 +633,7 @@ class Perso:
                             print("You learnt {}, congratulations".format(PrettyUI.add_color(tal,PrettyUI.Talent)))
                             b=1
                         elif a in listno:
-                            print("Some people are less talented than others")
+                            print(PrettyUI.center("Some people are less talented than others"))
                             b=1
                         else:
                             PrettyUI.invalid_ans()
@@ -720,7 +643,7 @@ class Perso:
           price,race = self.reduc(price)
           print("\t You encounter {} {} blascksmith".format(random.choice(listshop),Perso.prace(race)))
           if  len(Perso.liststuff) ==0:
-              print("You have nothing new to buy")
+              print(PrettyUI.center("You have nothing new to buy"))
           elif self.gold < price:
                     print("Sadly, you don't have enough "+PrettyUI.add_color("Gold",PrettyUI.Gold)+", for their service")
           else:
@@ -744,7 +667,7 @@ class Perso:
                             print("You bought {}, congratulations".format(PrettyUI.add_color(Perso.prettyname[ite],PrettyUI.Item)))
                             b=1
                         elif a in listno:
-                            print("Some people think it's better to travel light")
+                            print(PrettyUI.center("Some people think it's better to travel light"))
                             b=1
                         else:
                             PrettyUI.invalid_ans()
@@ -771,14 +694,14 @@ class Perso:
                       self.alive += 1
                       self.hp = self.maxhp
                   else:
-                      print("Oh no, you failed and took some damage")
+                      print(PrettyUI.center("Oh no, you failed and took some damage"))
                       self.hp -= (random.randint(15,40) * self.maxhp)//100
                       if self.hp <1:
                           self.hp = 1
                           print("Luckily, the "+PrettyUI.add_color("Graal",PrettyUI.Gold)+" prevented this damage from being lethal")
                   b=1
               elif a in listno:
-                  print("Some things are better left alone...")
+                  print(PrettyUI.center("Some things are probably better left alone..."))
                   b=1
               else:
                   PrettyUI.invalid_ans()
@@ -815,14 +738,14 @@ class Perso:
                       self.quest=[reward,nb,r]
                       b=1
                   elif a in listno:
-                      print("Oh not interested? Ok...")
+                      print(PrettyUI.center("Oh not interested? Ok..."))
                       b=1
                   else:
                       PrettyUI.invalid_ans()
 
     def vampireoverlord(self):
         gold = 500
-        print("\t You encounter a rich vampire")
+        print(PrettyUI.center("You encounter a rich vampire"))
         b=0
         while b<1:
             tab1 =["Do you want to get bitten", "lose half your current Life","and get "+str(gold)+" Gold (y/n)?"]
@@ -839,78 +762,15 @@ class Perso:
             if a in listyes:
                 self.hp -= self.hp //2
                 self.gold += gold
-                print("Thanks for the meal")
+                print(PrettyUI.center("Thanks for the meal"))
                 b=1
             elif a in listno:
-                print("Why do i bother")
+                print(PrettyUI.center("Why do i bother?"))
                 b=1
             else:
                 PrettyUI.invalid_ans()
 
-class Mon:
 
-    defmon= {"cryptographer" :(3,0,1,3),   "moth"           :(1,1,0,0),
-             "butterfly"     :(2,2,0,1),   "bee"            :(3,3,0,2),
-             "bear"          :(6,7,0,0),   "mage"           :(10,10,1,4),
-             "soldier"       :(10,10,0,5), "wizard"         :(11,12,1,3),
-             "ghost broccoli":(12,10,1,4), "ghost pepper"   :(13,12,0,5),
-             "slime"         :(14,14,2,6), "icthyocentaur"  :(15,14,0,7),
-             "demon"         :(13,12,2,3), "vampire"        :(14,15,1,4),
-             "werewolf"      :(15,15,0,7), "elemental"      :(15,15,1,4),
-             "moon alien"    :(18,20,2,8), "roussalka"      :(19,20,1,9),
-             "space soldier" :(20,25,0,10),"space wizard"   :(21,26,1,10),
-             "space demon"   :(21,27,2,12),"crazy cat"      :(25,28,2,10),
-             "inugami"       :(26,27,0,13),"naga sorceress" :(27,28,1,15),
-             "naga footman"  :(27,27,0,15),"naga overlord"  :(28,28,2,16),
-             "void marksman" :(26,30,0,12),"void sorcered"  :(30,34,1,15),
-             "void anointed" :(32,35,2,16),"addanc"         :(33,36,0,17),
-             "kraken"        :(34,38,0,15),"incubbus"       :(36,37,2,16),
-             "cerberus"      :(37,39,0,17),"hydra"          :(37,37,1,18),
-             "nian"          :(40,42,2,20),"efrit"          :(40,41,1,16),
-             "Rakshasas"     :(41,42,0,18)
-             } # Name, base xp, base dmg, phy|mag|chaos, loot
-    limon = list(defmon.keys())
-
-    def __init__(self,name,c):
-        self.name=name
-        self.xp=c[0]
-        self.dam=c[1]
-        self.typ=c[2]
-        self.loot=c[3]
-
-    def relslice(lvl):
-        '''
-
-        Parameters
-        ----------
-        lvl : int, user level.
-
-        Returns
-        -------
-        list of appropriate monster names.
-
-        '''
-
-        l = len(Mon.limon)
-        minslice=min(max(0,lvl-2),l-1)
-        maxslice=(min(l, lvl+2))
-        return Mon.limon[minslice:maxslice]
-
-    def pickmonster(lvl):
-        '''
-        Parameters
-        ----------
-        lvl : int
-
-        Returns
-        -------
-        monstrinou : a valid monster for the lvl range
-
-        '''
-        name = random.choice(Mon.relslice(lvl))
-        c = Mon.defmon[name]
-        monstrinou = Mon(name,c)
-        return monstrinou
 
 def title():
    col = PrettyUI.racecol[random.choice(Perso.listrac)]
@@ -973,7 +833,7 @@ def play(t=0.2):
     if os.path.isfile('./Silly_save.sav'):
         g = True
         while g:
-            a = input("Save file detected do you want to load it "+yn+"?"+ef.italic+"(Refusing will overwrite it) "+rs.italic)
+            a = input("Save file detected do you want to load it "+yn+"?\n"+PrettyUI.add_bold(" "*9+"Refusing will overwrite it "))
             if a in listyes:
                 b = True
                 g = False
@@ -1020,7 +880,7 @@ def play(t=0.2):
         if os.path.isfile('./Silly_save.sav'):
             os.remove("./Silly_save.sav")
     else:
-        print("You stopped your adventure, good bye.")
+        print(PrettyUI.center("You stopped your adventure, good bye."))
 
 
 t=0.1
