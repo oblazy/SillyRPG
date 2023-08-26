@@ -1,7 +1,8 @@
 from sty import fg, bg, ef, rs
 import random
+import os
 
-
+mh,mw=os.get_terminal_size()
 
 
 racecol   ={"human":(159),
@@ -23,6 +24,7 @@ Critical = (166)
 Gold     = (220)
 XP       = 173
 SQuest    = 219
+Spell   = 164
 
 def add_color(msg,fore):
     if type(msg) != str:
@@ -88,3 +90,20 @@ def invalid_ans():
     "What is yellow, and equivalent to the axiom of Choice? Zorn's lemma!"]
     s+=random.choice(lsilly)+" 🔥"
     print(s)
+
+def printl(li):
+    for s in li:
+        print(s)
+
+def addtolist(li,e):
+    n = len(e)
+    while len(li) + n > mh:
+        li.pop()
+    li.concat(e)
+
+
+def niceprint(cart,list,new):
+    os.system('cls' if os.name == 'nt' else 'clear')
+    printl(cart)
+    addtolist(list,new)
+    printl(list)
