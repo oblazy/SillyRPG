@@ -96,8 +96,8 @@ class Perso:
     '''
 
     prettyname={
-        "lpot":PrettyUI.add_color("Life Potion",PrettyUI.Life),
-        "mpot":PrettyUI.add_color("Mana Potion",PrettyUI.Mana),
+        "lpot":PrettyUI.add_color("❤ Life Potion",PrettyUI.Life),
+        "mpot":PrettyUI.add_color("✿ Mana Potion",PrettyUI.Mana),
         "spdb":"🥾 Speed Boots",
         "dglo":"🧤 Dexterity Gloves",
         "what":"🎩 Wizard Hat",
@@ -189,8 +189,13 @@ class Perso:
     def printspe(spellist):
         print("\n\tYou had the following spell{}:".format(PrettyUI.ans(len(spellist))))
         s=""
+        fst=True
         for (c,d) in spellist:
-            s+='\n\t -  '+c+' Lv '+str(d)+'.'
+            if fst:
+                s+='\t -  '+c+' Lv '+str(d)+'.'
+                fst= False
+            else:
+                s+='\n\t -  '+c+' Lv '+str(d)+'.'
         print(s)
 
     def printite(items):
