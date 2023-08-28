@@ -38,6 +38,7 @@ You're an adventurer in a wonderland, and are chasing monsters to find gold and 
 - [X] New character races
 - [X] New monsters
 - [X] Talents
+- [X] Spells
 - [X] Let the attributes do something (in progress)
 - [ ] Cute interface (in progress... ish)
 - [ ] Weapons / Stuff ? (ish)
@@ -53,4 +54,4 @@ You're an adventurer in a wonderland, and are chasing monsters to find gold and 
 - This program uses pickle to read the save file, as such, be careful when downloading save files from an untrusted source. SillyRPG will not intentionnaly harm your computer, but maliciously crafted savefiles can.
 - This program has no access to internet, as such we don't read, collect, play with your data. The only extra files generated while playing is your autosave file named "Silly_save.sav". It is automatically deleted when your character dies.
 - As we are in early development phases, we don't guarantee compatibility between save files of different version.
-- Current run for now last until lv 20-30 so may not take to long :)
+- Current run for now last until lv 20-30 so may not take too long :)
