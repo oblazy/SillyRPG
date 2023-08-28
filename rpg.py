@@ -145,7 +145,7 @@ class Perso:
         self.lidod  = [5,10,25,50,100,250,500,1000]
         self.lifsa  = [5,10,25,50,100,250,500,1000]
         self.lifig  = [5,10,25,50,100,250,500,1000]
-        self.quest  = [-1,-1,-1]  # reward is x*lvl, given when y=0, z is type 0 monster, 1 encounter, 2 dodge
+        self.quest  = [-1,-1,-1,-1]  # reward is x*lvl, given when y=0, z is type 0 monster, 1 encounter, 2 dodge, 3 spell
 
 
         if race=="undead":
@@ -188,8 +188,9 @@ class Perso:
 
     def printspe(spellist):
         print("\n\tYou had the following spell{}:".format(PrettyUI.ans(len(spellist))))
+        s=""
         for (c,d) in spellist:
-            s+='\n\t -  '+c+" Lv "+str(d)+"."
+            s+='\n\t -  '+c+' Lv '+str(d)+'.'
         print(s)
 
     def printite(items):
@@ -388,14 +389,14 @@ class Perso:
         self.gold+= loot
         if not(dod):                                            # If not dodged
             if not(self.roll(self.fa,100+self.lvl)):            # If no sneak attack
-                if self.inspelist("Fireball") and self.mp > 5*self.bsc:
+                if self.inspelist("Fireball")>0 and self.mp > (5.5-0.1*self.inspelist("Fireball"))*self.bsc:
                     print("You Fireballed a "+name+" and won "+str(xp)+" xp, avoided damage and earned "+PrettyUI.givemeans(loot, "gold")+"!")
                     self.nbspe += 1
                     self.mp -= 5*self.bsc
 
                 else:
-                    if self.inspelist("Resist Damage") and self.mp > 2*self.bsc:
-                        dam = 0.9 * dam
+                    if self.inspelist("Resist Damage")>0 and self.mp > 2*self.bsc:
+                        dam = (0.91-0.01*self.inspelist("Resist Damage")) * dam
                     self.damage(dam,name)
                     if self.alive > 0:
                         print("You fought "+random.choice(listmean)+" "+name+" and won "+str(xp)+" xp, took "+PrettyUI.givemeans(dam,"damage")+" and earned "+PrettyUI.givemeans(loot, "gold")+"!")
@@ -412,7 +413,7 @@ class Perso:
             if self.quest[2] == 1:
                 self.quest[1] -= 1
         if 2*self.hp < self.maxhp and self.inspelist("Heal") and self.mp > self.bsc:
-            self.hp += 10
+            self.hp += 9+self.inspelist("Heal")
             self.nbspe += 1
             self.mp -= self.bsc
         print(self)
@@ -701,9 +702,7 @@ class Perso:
           price = 1500
           price,race = self.reduc(price)
           print("\t You encounter {} {} mage".format(random.choice(listshop),Perso.prace(race)))
-          if  len(Perso.listspe) ==0:
-              print(PrettyUI.center("You have no new spell available to learn"))
-          elif self.gold < price:
+          if self.gold < price:
                     print("Sadly, you don't have enough "+PrettyUI.add_color("Gold",PrettyUI.Gold)+", for "+randompro(listposs)+"service")
           else:
                     b=0
@@ -799,7 +798,7 @@ class Perso:
               else:
                   PrettyUI.invalid_ans()
 
-    quest_list=["Fighting ","Dodging ","Adventuring "]
+    quest_list=["Fighting ","Dodging ","Adventuring "," Casting "]
 
     def scrollquest(self):
           print("\t You found a "+PrettyUI.add_color("Scroll of Quest ",PrettyUI.SQuest)+"!!")
